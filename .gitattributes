@@ -1,1 +1,4 @@
 * text=auto
+# katalog ma CRLF między wierszami i LF wewnątrz komórek – zachowaj bajt w bajt
+*.csv -text
+*.svg text
