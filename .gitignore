@@ -1,0 +1,25 @@
+# Dane ocen – NIGDY nie commituj (ścieżki ataku, podatne konta)
+*.vault.json
+backups/
+*_JAWNY_*.json
+*JAWNY*.json
+raport_*.html
+raport_*.md
+raport_*.pdf
+plan_*.csv
+porownanie_domen.csv
+
+# Wyniki narzędzi
+ad_hc_*.xml
+ad_hc_*.html
+*_Certipy.json
+*certipy*.json
+*.zip
+
+# System / edytory
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+__pycache__/

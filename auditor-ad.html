@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<!--
+  AuDitor-AD – ocena bezpieczeństwa Active Directory, PKI (AD CS) i końcówek
+  Copyright (c) 2026 Marcin Lewandowski <marcin.lewandowski.x@gmail.com>
+  Autor i twórca: Marcin Lewandowski
+  SPDX-License-Identifier: MIT
+  Repozytorium: https://github.com/mael777it/AuDitor-AD
+  Licencja: MIT – pełna treść w pliku LICENSE w repozytorium.
+-->
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuDitor-AD</title>
+<meta name="author" content="Marcin Lewandowski">
+<meta name="description" content="AuDitor-AD – ocena bezpieczeństwa Active Directory, PKI i końcówek (licencja MIT)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQXVEaXRvci1BRCI+PHRpdGxlPkF1RGl0b3ItQUQ8L3RpdGxlPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgMCkgc2NhbGUoMSkiPgogIDxwYXRoIGQ9Ik0zMiAzIEw1NiAxMSBWMzAgQzU2IDQ1IDQ2IDU1LjUgMzIgNjEgQzE4IDU1LjUgOCA0NSA4IDMwIFYxMSBaIiBmaWxsPSIjRDcyNjNEIi8+CiAgPHBhdGggZD0iTTMyIDMgTDU2IDExIFYzMCBDNTYgNDUgNDYgNTUuNSAzMiA2MSBaIiBmaWxsPSIjMDAwIiBmaWxsLW9wYWNpdHk9Ii4xMiIvPgogIDxnIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0ibm9uZSI+CiAgICA8cGF0aCBkPSJNMzIgMjEgVjI5IE0zMiAyOSBIMjIuNSBWMzYuNSBNMzIgMjkgSDQxLjUgVjM2LjUiLz4KICA8L2c+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIxNyIgcj0iNS4yIiBmaWxsPSIjZmZmIi8+CiAgPGNpcmNsZSBjeD0iMjIuNSIgY3k9IjQxLjUiIHI9IjQuNiIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjQxLjUiIGN5PSI0MS41IiByPSI0LjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHBhdGggZD0iTTQ0LjggNDQuOCBMNDggNDgiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzLjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+PC9zdmc+">
+<style>
+:root{
+  --bg:#f5f6f8;--panel:#fff;--panel2:#eef0f3;--text:#1b1f24;--muted:#5f6b7a;--border:#d8dde4;
+  --accent:#2457c5;--accent-bg:#e7eefc;--ok:#1f7a45;--ok-bg:#dff3e7;--part:#9a5b00;--part-bg:#fdf1dc;
+  --bad:#b3261e;--bad-bg:#fbe4e2;--na:#6b7280;--na-bg:#eceef1;--un:#9aa3b0;--un-bg:#f4f5f7;--code:#f3f4f7;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111418;--panel:#191d23;--panel2:#222730;--text:#e4e7ec;--muted:#98a2b3;--border:#2d333d;
+  --accent:#7aa2ff;--accent-bg:#1e2942;--ok:#5fd08f;--ok-bg:#15301f;--part:#f0b35a;--part-bg:#3a2a12;
+  --bad:#ff8a80;--bad-bg:#3b1a18;--na:#9aa3b0;--na-bg:#262b34;--un:#6b7480;--un-bg:#1d2129;--code:#0e1115;}}
+:root[data-theme="dark"]{
+  --bg:#111418;--panel:#191d23;--panel2:#222730;--text:#e4e7ec;--muted:#98a2b3;--border:#2d333d;
+  --accent:#7aa2ff;--accent-bg:#1e2942;--ok:#5fd08f;--ok-bg:#15301f;--part:#f0b35a;--part-bg:#3a2a12;
+  --bad:#ff8a80;--bad-bg:#3b1a18;--na:#9aa3b0;--na-bg:#262b34;--un:#6b7480;--un-bg:#1d2129;--code:#0e1115;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.primary{color:#0b1020}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.primary{color:#0b1020}}
+button.small{padding:2px 8px;font-size:12px}
+button.link{border:none;background:none;color:var(--accent);padding:0;text-decoration:underline}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%}
+textarea{resize:vertical}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px}
+header{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+header h1{font-size:16px;margin:0 10px 0 0;line-height:0}
+header h1 svg{height:28px;width:auto;display:block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.about-logo svg{height:52px;width:auto;display:block;margin-bottom:10px}
+.spacer{flex:1}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;padding:16px;max-width:1700px;margin:0 auto}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px}
+.card h2{font-size:12px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.dlist .item{padding:8px;border-radius:6px;cursor:pointer;border:1px solid transparent;margin-bottom:4px;display:flex;gap:8px;align-items:center}
+.dlist .item:hover{background:var(--panel2)}
+.dlist .item.active{background:var(--accent-bg);border-color:var(--accent)}
+.meta{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--muted)}
+.tabs button.on{border-bottom-color:var(--accent);color:var(--text);font-weight:600}
+.badge{font-size:11px;padding:2px 7px;border-radius:10px;background:var(--panel2);color:var(--muted);white-space:nowrap;display:inline-block}
+.r-Krytyczne{background:var(--bad-bg);color:var(--bad)}.r-Wysokie{background:var(--part-bg);color:var(--part)}
+.r-Średnie{background:var(--accent-bg);color:var(--accent)}.r-Niskie{background:var(--panel2);color:var(--muted)}
+.grade{width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;flex:none}
+.grade.sm{width:24px;height:24px;font-size:13px;border-radius:6px}
+.g-A{background:#1f7a45}.g-B{background:#5a9a2e}.g-C{background:#c08a00}.g-D{background:#d0621c}.g-E{background:#b3261e}.g-{background:#8a94a3}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.kpi .v{font-size:22px;font-weight:700}.kpi .l{font-size:12px;color:var(--muted)}
+/* coverage map */
+.cmap .arow{display:grid;grid-template-columns:230px 1fr 60px;gap:10px;align-items:center;padding:4px 0;border-bottom:1px dashed var(--border)}
+@media(max-width:700px){.cmap .arow{grid-template-columns:1fr}}
+.cmap .an{font-size:13px}
+.tiles{display:flex;flex-wrap:wrap;gap:4px}
+.tile{width:62px;height:30px;border-radius:5px;font-size:10.5px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent;font-weight:600}
+.tile:hover{outline:2px solid var(--accent)}
+.s-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.s-part{background:var(--part-bg);color:var(--part);border-color:var(--part)}
+.s-fail{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.s-na{background:var(--na-bg);color:var(--na);border-style:dashed;border-color:var(--na)}
+.s-{background:var(--un-bg);color:var(--un);border-color:var(--border)}
+.pct{font-weight:700;text-align:right}
+.bar{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}.bar>div{height:100%}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-top:8px}
+.legend span{display:inline-flex;gap:5px;align-items:center}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid}
+/* controls */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.filters select,.filters input{width:auto}
+.areah{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 6px}
+.ctl{border:1px solid var(--border);border-left:4px solid var(--border);border-radius:8px;background:var(--panel);margin-bottom:6px}
+.ctl.st-ok{border-left-color:var(--ok)}.ctl.st-part{border-left-color:var(--part)}.ctl.st-fail{border-left-color:var(--bad)}.ctl.st-na{border-left-color:var(--na)}
+.ctlh{display:flex;gap:10px;align-items:center;padding:8px 10px;flex-wrap:wrap}
+.ctlh .t{flex:1;min-width:220px;cursor:pointer}
+.ctlh .id{font-size:12px;color:var(--muted);margin-right:6px;font-family:ui-monospace,Consolas,monospace}
+.seg{display:flex;gap:2px}
+.seg button{padding:3px 8px;font-size:12px;border-radius:5px}
+.seg button.on.b-ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.seg button.on.b-part{background:var(--part-bg);border-color:var(--part);color:var(--part)}
+.seg button.on.b-fail{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.seg button.on.b-na{background:var(--na-bg);border-color:var(--na);color:var(--na)}
+.ctlb{padding:0 12px 12px;display:none}
+.ctl.open .ctlb{display:block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+.info{background:var(--panel2);border-radius:6px;padding:8px 10px;font-size:13px;white-space:pre-wrap;margin-bottom:8px}
+.info b{display:block;font-size:11px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;letter-spacing:.04em}
+.fixbox{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font:12.5px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap;margin-bottom:8px}
+.pill{font-size:11px;background:var(--panel2);border-radius:4px;padding:1px 6px;margin-right:4px;display:inline-block}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th,table.t td{border-bottom:1px solid var(--border);padding:6px;text-align:left;vertical-align:top}
+table.t th{font-size:11px;color:var(--muted);text-transform:uppercase;position:sticky;top:56px;background:var(--panel)}
+table.t tr:hover td{background:var(--panel2)}
+table.t input,table.t select{padding:3px 6px;font-size:12.5px}
+.mx td.c{text-align:center;padding:3px}
+.mx .cell{display:inline-flex;width:34px;height:22px;border-radius:4px;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid}
+.tags{display:flex;flex-wrap:wrap;gap:4px 12px}
+.tags label{display:flex;gap:5px;align-items:center;color:var(--text);font-size:12.5px;margin:0}
+.tags input{width:auto}
+.empty{color:var(--muted);text-align:center;padding:40px 10px}
+dialog{border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);max-width:720px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.toast{position:fixed;bottom:16px;right:16px;background:var(--text);color:var(--bg);padding:8px 14px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{background:var(--part-bg);border:1px solid var(--part);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:13px}
+code{font:12px ui-monospace,Consolas,monospace;background:var(--code);padding:0 3px;border-radius:3px}
+#vaultScreen{position:fixed;inset:56px 0 0 0;background:var(--bg);z-index:4;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+#vaultScreen[hidden]{display:none}
+.vcard{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:560px;width:100%}
+section.set{border-top:1px solid var(--border);margin-top:14px;padding-top:10px}
+section.set h4{margin:0 0 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1 title="AuDitor-AD"><svg viewBox="0 0 340 64" height="26" aria-label="AuDitor-AD" role="img"><g transform="translate(2 0) scale(1)">
+  <path d="M32 3 L56 11 V30 C56 45 46 55.5 32 61 C18 55.5 8 45 8 30 V11 Z" fill="#D7263D"/>
+  <path d="M32 3 L56 11 V30 C56 45 46 55.5 32 61 Z" fill="#000" fill-opacity=".12"/>
+  <g stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none">
+    <path d="M32 21 V29 M32 29 H22.5 V36.5 M32 29 H41.5 V36.5"/>
+  </g>
+  <circle cx="32" cy="17" r="5.2" fill="#fff"/>
+  <circle cx="22.5" cy="41.5" r="4.6" fill="#fff"/>
+  <circle cx="41.5" cy="41.5" r="4.4" fill="none" stroke="#fff" stroke-width="3"/>
+  <path d="M44.8 44.8 L48 48" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+</g><path fill="#D7263D" d="M99.956 41.544H88.428L86.58 47.0H78.704L89.88 16.112000000000002H98.592L109.768 47.0H101.804ZM98.02 35.736000000000004 94.19200000000001 24.428 90.408 35.736000000000004ZM169.47599999999997 31.556Q169.47599999999997 36.088 167.474 39.608000000000004Q165.47199999999998 43.128 161.79799999999997 45.064Q158.12399999999997 47.0 153.284 47.0H141.712V16.112000000000002H153.284Q158.16799999999998 16.112000000000002 161.82 18.048000000000002Q165.47199999999998 19.984 167.474 23.482Q169.47599999999997 26.98 169.47599999999997 31.556ZM161.82 31.556Q161.82 27.288 159.444 24.912Q157.06799999999998 22.536 152.79999999999998 22.536H149.236V40.488H152.79999999999998Q157.06799999999998 40.488 159.444 38.156Q161.82 35.824 161.82 31.556ZM291.62 41.544H280.092L278.24399999999997 47.0H270.368L281.544 16.112000000000002H290.256L301.43199999999996 47.0H293.46799999999996ZM289.68399999999997 35.736000000000004 285.856 24.428 282.072 35.736000000000004ZM332.584 31.556Q332.584 36.088 330.582 39.608000000000004Q328.58 43.128 324.90599999999995 45.064Q321.23199999999997 47.0 316.392 47.0H304.82V16.112000000000002H316.392Q321.27599999999995 16.112000000000002 324.928 18.048000000000002Q328.58 19.984 330.582 23.482Q332.584 26.98 332.584 31.556ZM324.928 31.556Q324.928 27.288 322.552 24.912Q320.176 22.536 315.90799999999996 22.536H312.344V40.488H315.90799999999996Q320.176 40.488 322.552 38.156Q324.928 35.824 324.928 31.556Z"/><path fill="currentColor" d="M135.684 22.756V47.0H130.668V44.14Q129.48 45.636 127.566 46.494Q125.652 47.352 123.496 47.352Q120.636 47.352 118.37 46.164Q116.104 44.976 114.806 42.644Q113.508 40.312 113.508 37.012V22.756H118.47999999999999V36.264Q118.47999999999999 39.52 120.10799999999999 41.258Q121.73599999999999 42.996 124.55199999999999 42.996Q127.368 42.996 129.018 41.258Q130.668 39.52 130.668 36.264V22.756ZM173.61199999999997 16.332Q173.61199999999997 14.968000000000004 174.53599999999997 14.044000000000004Q175.45999999999998 13.120000000000005 176.82399999999998 13.120000000000005Q178.14399999999998 13.120000000000005 179.06799999999998 14.044000000000004Q179.992 14.968000000000004 179.992 16.332Q179.992 17.696 179.06799999999998 18.62Q178.14399999999998 19.544 176.82399999999998 19.544Q175.45999999999998 19.544 174.53599999999997 18.62Q173.61199999999997 17.696 173.61199999999997 16.332ZM179.28799999999998 22.756V47.0H174.272V22.756ZM191.73999999999995 26.848000000000003V40.268Q191.73999999999995 41.632 192.37799999999996 42.226Q193.01599999999996 42.82 194.55599999999995 42.82H197.63599999999997V47.0H193.67599999999996Q190.28799999999995 47.0 188.48399999999998 45.416Q186.67999999999998 43.832 186.67999999999998 40.268V26.848000000000003H183.81999999999996V22.756H186.67999999999998V16.728H191.73999999999995V22.756H197.63599999999997V26.848000000000003ZM200.62799999999996 34.856Q200.62799999999996 31.16 202.25599999999997 28.3Q203.88399999999996 25.44 206.69999999999996 23.900000000000002Q209.51599999999996 22.360000000000003 212.99199999999996 22.360000000000003Q216.46799999999996 22.360000000000003 219.28399999999996 23.900000000000002Q222.09999999999997 25.44 223.72799999999995 28.3Q225.35599999999997 31.16 225.35599999999997 34.856Q225.35599999999997 38.552 223.68399999999997 41.412Q222.01199999999994 44.272 219.12999999999994 45.834Q216.24799999999996 47.396 212.77199999999996 47.396Q209.33999999999995 47.396 206.56799999999996 45.834Q203.79599999999996 44.272 202.21199999999996 41.434Q200.62799999999996 38.596000000000004 200.62799999999996 34.856ZM220.20799999999997 34.856Q220.20799999999997 32.216 219.19599999999997 30.39Q218.18399999999997 28.564 216.51199999999994 27.64Q214.83999999999995 26.716 212.90399999999997 26.716Q210.96799999999996 26.716 209.31799999999996 27.64Q207.66799999999995 28.564 206.69999999999996 30.39Q205.73199999999997 32.216 205.73199999999997 34.856Q205.73199999999997 38.772 207.73399999999998 40.906Q209.73599999999996 43.04 212.77199999999996 43.04Q214.70799999999997 43.04 216.40199999999996 42.116Q218.09599999999995 41.192 219.15199999999996 39.344Q220.20799999999997 37.496 220.20799999999997 34.856ZM242.60399999999996 22.360000000000003V27.552H241.32799999999997Q238.37999999999997 27.552 236.86199999999997 29.048000000000002Q235.34399999999997 30.544 235.34399999999997 34.24V47.0H230.32799999999997V22.756H235.34399999999997V26.276Q236.44399999999996 24.428 238.26999999999998 23.394000000000002Q240.09599999999998 22.360000000000003 242.60399999999996 22.360000000000003ZM265.83599999999996 28.96V33.184H247.75199999999998V28.96Z"/></svg><span class="sr">AuDitor-AD</span></h1>
+  <button id="btnReport" class="primary">Raport</button>
+  <span class="spacer"></span>
+  <span class="meta" id="vaultStatus"></span>
+  <button id="btnVaultDl" hidden>Pobierz sejf</button>
+  <button id="btnLock" title="Zablokuj sejf">🔒 Zablokuj</button>
+  <span class="meta" id="dbInfo"></span>
+  <button id="btnExport">Eksport</button>
+  <button id="btnImport">Import</button>
+  <button id="btnSettings">Ustawienia</button>
+  <button id="btnTheme" title="Motyw">◐</button>
+  <button id="btnAbout" title="O aplikacji">ⓘ</button>
+  <input type="file" id="fileCsv" accept=".csv,text/csv" hidden>
+  <input type="file" id="fileJson" accept=".json,application/json" hidden>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="card">
+      <h2>Domeny</h2>
+      <div class="dlist" id="domList"></div>
+      <div class="row" style="margin-top:8px"><button id="btnAddDom" style="flex:1">+ Dodaj domenę</button></div>
+      <div class="row" style="margin-top:8px"><button id="btnCompare" style="flex:1">▦ Porównanie domen</button></div>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<div id="vaultScreen" hidden></div>
+
+<dialog id="dlgPw"><h3 style="margin-top:0" id="pwTitle"></h3><div id="pwFields"></div>
+  <div class="row" style="margin-top:14px;justify-content:flex-end"><button id="pwCancel">Anuluj</button><button class="primary" id="pwOk">OK</button></div></dialog>
+
+<dialog id="dlgExport"><h3 style="margin-top:0">Eksport danych oceny</h3>
+  <p class="meta">Kopia zaszyfrowana otwiera się hasłem sejfu. Eksport jawny zawiera nazwy kont, ścieżki ataku i podatności w czystym tekście.</p>
+  <div class="row"><button class="primary" id="expEnc">Kopia zaszyfrowana</button><button class="danger" id="expPlain">JSON niezaszyfrowany</button><span class="spacer"></span><button id="expClose">Zamknij</button></div></dialog>
+
+<dialog id="dlgSettings">
+  <h3 style="margin-top:0">Ustawienia</h3>
+  <section><h4 style="margin:0 0 8px">Katalog kontroli</h4><div class="meta" id="setDbInfo"></div>
+    <div class="row" style="margin-top:8px"><button id="btnLoadCsv">Wczytaj katalog CSV</button><button id="btnDlCsv">Pobierz aktualny katalog</button><button id="btnResetDb" class="danger">Przywróć wbudowany</button></div></section>
+  <section class="set"><h4>Sejf</h4><div class="meta" id="setVaultInfo"></div>
+    <div class="grid" style="margin-top:8px"><div><label>Autoblokada po bezczynności (min, 0 = wył.)</label><input type="number" min="0" id="setLock"></div>
+    <div><label>Domyślny oceniający</label><input id="setAssessor"></div><div><label>Nazwa organizacji (do raportów)</label><input id="setOrg"></div></div>
+    <div class="row" style="margin-top:8px"><button id="btnChangePw">Zmień hasło</button><button id="btnForget">Zapomnij folder sejfu</button></div></section>
+  <div class="row" style="margin-top:14px;justify-content:flex-end"><button id="setClose">Anuluj</button><button class="primary" id="setSave">Zapisz</button></div>
+</dialog>
+
+<dialog id="dlgReport">
+  <h3 style="margin-top:0">Raport</h3>
+  <div class="grid">
+    <div><label>Zakres</label><select id="rpDom"></select></div>
+    <div><label>Odbiorca</label><select id="rpType"><option value="mgmt">Zarządczy (management)</option><option value="tech">Techniczny (administratorzy)</option></select></div>
+    <div><label>Klauzula</label><input id="rpClass" value="POUFNE – do użytku wewnętrznego"></div>
+  </div>
+  <div style="margin-top:10px">
+    <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="rpOk" style="width:auto"> techniczny: dołącz listę kontroli zgodnych</label>
+    <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="rpAccNames" style="width:auto"> zarządczy: pokaż nazwy niebezpiecznych kont (domyślnie tylko liczby)</label>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button class="primary" id="rpOpen">Podgląd / drukuj do PDF</button><button id="rpHtml">Pobierz HTML</button><button id="rpMd">Pobierz Markdown</button><button id="rpCsv">Plan naprawczy CSV</button>
+    <span class="spacer"></span><button id="rpClose">Zamknij</button>
+  </div>
+</dialog>
+
+<dialog id="dlgCustom">
+  <h3 style="margin-top:0" id="cuTitle">Własne znalezisko</h3>
+  <div class="grid">
+    <div><label>Obszar</label><select id="cuArea"></select></div>
+    <div><label>Ryzyko</label><select id="cuRisk"><option>Krytyczne</option><option>Wysokie</option><option selected>Średnie</option><option>Niskie</option></select></div>
+    <div><label>Nakład</label><select id="cuEffort"><option>Niski</option><option selected>Średni</option><option>Wysoki</option></select></div>
+    <div><label>Źródło / reguła</label><input id="cuSrc" placeholder="np. PingCastle S-xxx"></div>
+  </div>
+  <div style="margin-top:8px"><label>Tytuł</label><input id="cuT"></div>
+  <div style="margin-top:8px"><label>Opis techniczny</label><textarea id="cuD" rows="2"></textarea></div>
+  <div style="margin-top:8px"><label>Ryzyko biznesowe (dla managementu)</label><textarea id="cuB" rows="2"></textarea></div>
+  <div style="margin-top:8px"><label>Jak naprawić / skonfigurować</label><textarea id="cuF" rows="4"></textarea></div>
+  <div class="row" style="margin-top:14px;justify-content:flex-end"><button id="cuCancel">Anuluj</button><button class="primary" id="cuOk">Zapisz</button></div>
+</dialog>
+
+<dialog id="dlgAbout"><div class="about-logo" id="aboutLogo"></div>
+  <p style="margin:0 0 6px"><b>AuDitor-AD</b> <span class="meta" id="aboutVer"></span></p>
+  <p class="meta" style="margin:0 0 6px">Ocena bezpieczeństwa Active Directory, PKI (AD CS) i utwardzenia końcówek – dla administratorów i managementu. Działa lokalnie w przeglądarce, dane trzyma w zaszyfrowanym sejfie.</p>
+  <p class="meta" style="margin:0">Autor: Marcin Lewandowski · Licencja MIT · <a href="https://github.com/mael777it/AuDitor-AD" target="_blank" rel="noopener">github.com/mael777it/AuDitor-AD</a></p>
+  <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="primary" id="aboutClose">Zamknij</button></div></dialog>
+
+<div class="toast" id="toast"></div>
+<script type="text/plain" id="defaultDb">id;area;title;risk;effort;description;business_risk;check;sources;pingcastle;certipy;remediation;impact;mitre
+PRV-01;AD – Konta uprzywilejowane;Minimalna liczba członków grup uprzywilejowanych (T0);Krytyczne;Średni;Grupy Domain/Enterprise/Schema Admins, Administrators, Account/Server/Backup/Print Operators, DnsAdmins, Group Policy Creator Owners, Key Admins zawierają tylko niezbędne, imienne konta administracyjne.;Każde konto w tych grupach to pełna kontrola nad domeną. Im więcej takich kont, tym większa szansa, że atakujący przejmie któreś z nich.;"PingCastle: sekcja Privileged Groups. BloodHound: członkowie grup Tier 0 (także zagnieżdżeni).
+Get-ADGroupMember ""Domain Admins"" -Recursive | Select Name,ObjectClass";PingCastle, BloodHound, PowerShell;P-AdminNum,P-OperatorsEmpty;;"1. Zinwentaryzuj członków (także zagnieżdżonych) i ich uzasadnienie.
+2. Usuń konta osób, które nie administrują domeną; zadania delegowane przenieś do grup z delegacją na OU.
+3. Grupy Operators (Account/Server/Backup/Print) pozostaw puste.
+4. Członkostwo zarządzaj przez grupy PAM (np. PAM-T0-…) i proces JIT/zatwierdzania.
+5. Monitoruj zmiany (4728/4732/4756) w SIEM.";Przed usunięciem sprawdź, czy konto nie jest używane przez usługę lub zadanie.;T1078.002
+PRV-02;AD – Konta uprzywilejowane;Konta serwisowe poza grupami uprzywilejowanymi;Krytyczne;Średni;"Konta usługowe (aplikacje, backup, monitoring) nie są członkami grup T0; tam gdzie to możliwe używane są gMSA.";Hasła kont serwisowych rzadko się zmieniają i często są znane wielu osobom – takie konto w grupie Domain Admins to prosta droga do przejęcia domeny.;PingCastle: konta serwisowe w grupach admin. BloodHound: konta z SPN będące członkami T0.;PingCastle, BloodHound;P-ServiceDomainAdmin;;"1. Dla każdego konta ustal faktycznie potrzebne uprawnienia (zwykle lokalny admin na kilku serwerach lub delegacja na OU).
+2. Nadaj uprawnienia minimalne, usuń z grup T0.
+3. Migruj na gMSA: New-ADServiceAccount -Name svcApp -DNSHostName svcApp.<domena> -PrincipalsAllowedToRetrieveManagedPassword <grupa_serwerów>
+4. Jeśli gMSA niemożliwe: hasło ≥ 25 znaków, rotacja, FGPP, logowanie ograniczone do serwerów aplikacji.";Wymaga testów z właścicielem aplikacji.;T1078.002
+PRV-03;AD – Konta uprzywilejowane;Konta uprzywilejowane oznaczone jako „wrażliwe, nie mogą być delegowane”;Wysokie;Niski;Flaga NOT_DELEGATED na kontach administracyjnych uniemożliwia wykorzystanie ich poświadczeń przez delegację Kerberos.;Bez tej flagi przejęty serwer z delegacją może podszyć się pod administratora domeny.;PingCastle: Privileged Accounts – delegation. PowerShell: Get-ADUser -Filter {AdminCount -eq 1 -and AccountNotDelegated -eq $false};PingCastle, PowerShell;P-Delegated;;"Set-ADAccountControl -Identity <konto> -AccountNotDelegated $true (dla wszystkich kont osób w T0/T1).
+Alternatywnie dodaj konta do Protected Users (PRV-04).";;T1558
+PRV-04;AD – Konta uprzywilejowane;Konta administratorów w grupie Protected Users;Wysokie;Średni;Protected Users wymusza: brak NTLM, brak delegacji, brak RC4/DES, TGT 4 h, brak buforowania poświadczeń.;Znacząco utrudnia kradzież i ponowne użycie poświadczeń administratorów (pass-the-hash, delegacja).;"PingCastle: Protected Users. Get-ADGroupMember ""Protected Users""";PingCastle, PowerShell;P-ProtectedUsers;;"1. Dodaj imienne konta administratorów T0 (NIE konta serwisowe ani komputery).
+2. Najpierw pilotaż na 1–2 kontach: sprawdź logowanie RDP, narzędzia używające NTLM.
+3. Zapewnij konto awaryjne (break-glass) poza grupą.";Konta w grupie nie zalogują się przez NTLM ani z cache – przetestuj scenariusze administracyjne.;T1550
+PRV-05;AD – Konta uprzywilejowane;Brak SPN na kontach uprzywilejowanych (Kerberoasting);Krytyczne;Niski;Konta z uprawnieniami T0 nie mają atrybutu servicePrincipalName.;Każdy użytkownik domeny może pobrać bilet dla konta z SPN i łamać jego hasło offline – jeśli to administrator, oznacza to przejęcie domeny.;"PingCastle: Kerberoasting admin. BloodHound: Kerberoastable members of high value groups. Certipy/BH: kerberoastable.
+Get-ADUser -Filter {AdminCount -eq 1 -and ServicePrincipalName -like '*'} -Properties ServicePrincipalName";PingCastle, BloodHound, PowerShell;P-Kerberoasting;;"1. Usuń zbędne SPN (Set-ADUser <konto> -ServicePrincipalNames @{Remove='…'}).
+2. Jeśli SPN jest potrzebny – usuń konto z grup uprzywilejowanych (PRV-02) lub migruj na gMSA.
+3. Natychmiast zmień hasło takiego konta (długie, losowe).";;T1558.003
+PRV-06;AD – Konta uprzywilejowane;Wbudowane konto Administrator nieużywane i zabezpieczone;Wysokie;Niski;Konto RID-500 nie jest używane na co dzień, ma długie losowe hasło w sejfie, flagę „sensitive”, a jego użycie jest monitorowane.;"Wspólne konto bez rozliczalności; często ma stare hasło znane wielu osobom.";PingCastle: Native Administrator recently used. Get-ADUser -Identity <RID500> -Properties LastLogonDate,PasswordLastSet;PingCastle, PowerShell;P-AdminLogin;;"1. Zmień hasło (≥ 30 znaków, sejf, procedura break-glass).
+2. Ustaw AccountNotDelegated, rozważ Smart card required.
+3. Alert w SIEM na każde logowanie (4624 TargetSid kończący się -500).";;T1078.002
+PRV-07;AD – Konta uprzywilejowane;Schema Admins i Enterprise Admins puste na co dzień;Średnie;Niski;Członkostwo nadawane tylko na czas zmian schematu / operacji na poziomie lasu.;Ogranicza liczbę kont zdolnych do zmian w całym lesie.;"PingCastle: Schema Admins not empty. Get-ADGroupMember ""Schema Admins""";PingCastle, PowerShell;P-SchemaAdmin;;"Usuń członków; dodawaj czasowo (np. przez PAM / Temporary Group Membership: Add-ADGroupMember -MemberTimeToLive przy włączonej funkcji Privileged Access Management).";;T1078.002
+PRV-08;AD – Konta uprzywilejowane;Hasło krbtgt zmieniane regularnie;Wysokie;Niski;Hasło konta krbtgt zmieniane co najmniej co 180 dni oraz po każdym incydencie T0.;Znajomość hasła krbtgt pozwala tworzyć „złote bilety” – pełny, trudny do wykrycia dostęp do domeny.;PingCastle: Krbtgt password last change. Get-ADUser krbtgt -Properties PasswordLastSet;PingCastle, PowerShell;A-Krbtgt;;"1. Użyj skryptu Microsoft New-KrbtgtKeys.ps1 (tryb symulacji, potem właściwy).
+2. Drugi reset po czasie ≥ maksymalnego życia TGT (domyślnie 10 h) i po pełnej replikacji.
+3. Zaplanuj rotację cyklicznie (np. co 180 dni).";Zbyt szybki podwójny reset może unieważnić bilety i przerwać uwierzytelnianie.;T1558.001
+PRV-09;AD – Konta uprzywilejowane;Grupa DnsAdmins pusta lub ściśle kontrolowana;Wysokie;Niski;Członkowie DnsAdmins mogą załadować dowolną bibliotekę DLL do usługi DNS działającej na DC.;Faktycznie równoważne uprawnieniom administratora domeny.;PingCastle: DnsAdmins. Get-ADGroupMember DnsAdmins;PingCastle, PowerShell;P-DNSAdmin;;"Usuń członków; zarządzanie DNS deleguj przez uprawnienia do stref zamiast członkostwa w DnsAdmins.";;T1574.002
+PRV-10;AD – Konta uprzywilejowane;Oddzielne konta administracyjne i codzienne;Wysokie;Średni;Administratorzy używają osobnych kont do pracy biurowej i do administracji (per warstwa T0/T1/T2).;Kliknięcie w phishing na koncie z uprawnieniami admina = natychmiastowe przejęcie środowiska.;Przegląd: konta imienne w grupach admin z włączoną skrzynką pocztową / logowaniem na stacje biurowe.;Ręcznie, BloodHound;;;"1. Utwórz konta adm-t0-/adm-t1-/adm-t2- zgodnie z konwencją.
+2. Konta admin bez skrzynek pocztowych i bez dostępu do internetu.
+3. Codzienne konta usuń z grup uprzywilejowanych.";;T1078
+KRB-01;AD – Kerberos i delegacje;Brak delegacji nieograniczonej poza kontrolerami domeny;Krytyczne;Średni;Tylko DC mają TRUSTED_FOR_DELEGATION.;Serwer z delegacją nieograniczoną przechowuje bilety TGT łączących się użytkowników – w połączeniu z wymuszeniem uwierzytelnienia DC daje przejęcie domeny.;"PingCastle: Unconstrained delegation. BloodHound: Unconstrained Delegation Systems.
+Get-ADComputer -Filter {TrustedForDelegation -eq $true -and PrimaryGroupID -ne 516}";PingCastle, BloodHound, PowerShell;P-UnconstrainedDelegation;;"1. Ustal, która aplikacja wymaga delegacji.
+2. Zamień na delegację ograniczoną (Kerberos only) lub RBCD do konkretnych usług.
+3. Set-ADComputer <host> -TrustedForDelegation $false
+4. Konta uprzywilejowane oznacz jako sensitive / Protected Users.";Testy z właścicielem aplikacji (np. IIS double-hop).;T1558
+KRB-02;AD – Kerberos i delegacje;Przegląd delegacji ograniczonej i RBCD;Wysokie;Średni;Delegacje (msDS-AllowedToDelegateTo, msDS-AllowedToActOnBehalfOfOtherIdentity) wskazują tylko potrzebne usługi, nigdy usługi na DC/T0.;Delegacja do usług na DC (np. LDAP, CIFS) pozwala przejąć DC.;BloodHound: AllowedToDelegate, AllowedToAct. Get-ADObject -Filter {msDS-AllowedToDelegateTo -like '*'} -Properties msDS-AllowedToDelegateTo;BloodHound, PowerShell;;;"Usuń delegacje do usług T0; delegacje „protocol transition” (TrustedToAuthForDelegation) ogranicz do niezbędnych; ogranicz, kto może zapisywać msDS-AllowedToActOnBehalfOfOtherIdentity.";;T1134.001
+KRB-03;AD – Kerberos i delegacje;Konta z SPN mają silne hasła lub są gMSA;Wysokie;Średni;Wszystkie konta użytkowników z SPN mają hasło ≥ 25 znaków, rotowane, obsługują AES.;Słabe hasło konta usługowego można złamać offline po Kerberoastingu.;BloodHound: Kerberoastable users. Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties PasswordLastSet,msDS-SupportedEncryptionTypes;BloodHound, PowerShell;;;"Migracja na gMSA; w przeciwnym razie reset na długie losowe hasło, msDS-SupportedEncryptionTypes = 0x18 (AES), usunięcie nieużywanych SPN.";;T1558.003
+KRB-04;AD – Kerberos i delegacje;Brak kont bez preautentykacji Kerberos (AS-REP roasting);Wysokie;Niski;Żadne konto nie ma flagi DONT_REQ_PREAUTH.;Dla takich kont można pobrać materiał do łamania hasła bez żadnego uwierzytelnienia.;PingCastle: Accounts without pre-authentication. Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true};PingCastle, BloodHound, PowerShell;S-NoPreAuth,S-NoPreAuthAdmin;;"Set-ADAccountControl -Identity <konto> -DoesNotRequirePreAuth $false; zmień hasło konta.";;T1558.004
+KRB-05;AD – Kerberos i delegacje;Wyłączone RC4 i DES w Kerberos;Średnie;Wysoki;Dozwolone tylko AES128/AES256.;RC4 ułatwia łamanie haseł (Kerberoasting) i ataki typu overpass-the-hash.;PingCastle: DES enabled. Zdarzenia 4769/4768 z TicketEncryptionType 0x17 (RC4) / 0x1,0x3 (DES) w SIEM.;PingCastle, SIEM;S-DesEnabled;;"1. Audyt: znajdź konta i usługi korzystające z RC4 (4769 z 0x17).
+2. Konta z hasłami sprzed poziomu 2008 – reset hasła (by miały klucze AES).
+3. GPO: Network security: Configure encryption types allowed for Kerberos = AES128, AES256, Future.
+4. Ustaw msDS-SupportedEncryptionTypes na kontach usługowych.
+Microsoft stopniowo wycofuje RC4 – sprawdź aktualny harmonogram.";Stare aplikacje/urządzenia (NAS, Java, Linux keytaby) mogą przestać działać – najpierw audyt.;T1558
+KRB-06;AD – Kerberos i delegacje;ms-DS-MachineAccountQuota = 0;Średnie;Niski;Zwykli użytkownicy nie mogą dodawać komputerów do domeny.;Domyślnie każdy użytkownik może dodać 10 kont komputerów – wykorzystywane w atakach RBCD, noPac, relay.;Get-ADObject (Get-ADDomain).DistinguishedName -Properties ms-DS-MachineAccountQuota;PowerShell, BloodHound;;;"Set-ADDomain -Identity <domena> -Replace @{""ms-DS-MachineAccountQuota""=""0""}
+Uprawnienie do dołączania komputerów deleguj grupie serwisowej na konkretne OU.";Sprawdź, czy proces dołączania stacji (np. SCCM/Autopilot/ręcznie przez helpdesk) nie korzysta z quota.;T1136.002
+PWD-01;AD – Hasła i konta;Polityka haseł: długość ≥ 14 (FGPP dla adminów i serwisów);Wysokie;Średni;"Domyślna polityka i FGPP wymuszają długie hasła; konta uprzywilejowane i serwisowe mają silniejsze wymagania.";Krótkie hasła łatwo złamać przez password spraying i ataki offline.;"PingCastle: Password policy – minimum length. Get-ADDefaultDomainPasswordPolicy; Get-ADFineGrainedPasswordPolicy -Filter *";PingCastle, PowerShell;A-MinPwdLen;;"1. Default Domain Policy: min 14 (lub FGPP dla wszystkich użytkowników jeśli nie można zmienić domyślnej).
+2. FGPP dla adminów: ≥ 16–20; dla kont serwisowych: ≥ 25.
+3. Rozważ listę zakazanych haseł (np. Entra Password Protection on-prem).";Zmiana wymusi nowe hasła przy następnej zmianie – komunikacja do użytkowników.;T1110
+PWD-02;AD – Hasła i konta;Brak haseł w Group Policy Preferences (cpassword);Krytyczne;Niski;SYSVOL nie zawiera plików GPP z atrybutem cpassword.;Hasła z GPP są odszyfrowywalne publicznym kluczem – każdy użytkownik domeny może je odczytać.;PingCastle: Password in GPO. findstr /S /I cpassword \\<domena>\SYSVOL\<domena>\Policies\*.xml;PingCastle, PowerShell;A-PwdGPO;;"1. Usuń preferencje zawierające hasła.
+2. Zmień hasła wszystkich kont, których hasła były w GPP.
+3. Lokalne hasła administratora zarządzaj przez Windows LAPS (PWD-05).";;T1552.006
+PWD-03;AD – Hasła i konta;Brak kont z hasłem zapisywanym odwracalnie;Wysokie;Niski;Flaga „Store password using reversible encryption” nie jest ustawiona.;Hasło takiego konta można odczytać w postaci jawnej z bazy AD.;PingCastle: Reversible password. Get-ADUser -Filter {AllowReversiblePasswordEncryption -eq $true};PingCastle, PowerShell;S-Reversible;;"Set-ADUser <konto> -AllowReversiblePasswordEncryption $false i wymuś zmianę hasła; sprawdź polityki FGPP.";;T1003.006
+PWD-04;AD – Hasła i konta;Brak kont z PasswordNotRequired;Średnie;Niski;Żadne włączone konto nie ma flagi PASSWD_NOTREQD.;Konto może mieć puste hasło.;PingCastle: Password not required. Get-ADUser -Filter {PasswordNotRequired -eq $true -and Enabled -eq $true};PingCastle, PowerShell;S-PwdNotRequired;;"Set-ADUser <konto> -PasswordNotRequired $false; ustaw hasło.";;T1078
+PWD-05;AD – Hasła i konta;Windows LAPS na wszystkich stacjach i serwerach;Krytyczne;Średni;Unikalne, rotowane hasła lokalnych administratorów, z ograniczonym dostępem do odczytu.;Wspólne hasło lokalnego admina pozwala na ruch boczny z jednej przejętej stacji na wszystkie.;PingCastle: LAPS not installed. Pokrycie: Get-ADComputer -Filter * -Properties msLAPS-PasswordExpirationTime. Uprawnienia odczytu: Find-LapsADExtendedRights -Identity <OU>. BloodHound: ReadLAPSPassword.;PingCastle, BloodHound, PowerShell;A-LAPS-Not-Installed;;"1. Update-LapsADSchema; Set-LapsADComputerSelfPermission -Identity <OU>.
+2. GPO: Computer Configuration > Administrative Templates > System > LAPS: Configure password backup directory = Active Directory; Password Settings (długość ≥ 20); Enable password encryption (DFL 2016+).
+3. Ogranicz prawo odczytu haseł do grup helpdesk/T1 na właściwe OU.
+4. Wycofaj legacy LAPS po migracji.";;T1021.002
+PWD-06;AD – Hasła i konta;Nieaktywne konta użytkowników i komputerów wyłączone;Średnie;Średni;Konta nieużywane > 90 dni są wyłączane, a po okresie karencji usuwane.;Nieużywane konta to niezauważalny punkt wejścia (np. konta byłych pracowników).;PingCastle: Inactive accounts. Search-ADAccount -AccountInactive -TimeSpan 90.00:00:00 -UsersOnly;PingCastle, PowerShell;S-Inactive,S-C-Inactive;;"Proces JML z HR; automatyczne wyłączanie (skrypt/IAM); przeniesienie do OU Disabled; usuwanie po 30–90 dniach.";;T1078
+PWD-07;AD – Hasła i konta;Brak słabych i współdzielonych haseł (audyt hashy);Wysokie;Średni;Okresowy audyt jakości haseł: hasła z list wycieków, identyczne hasła na wielu kontach, puste hasła.;Password spraying i credential stuffing to najczęstszy sposób wejścia do AD.;DSInternals: Get-ADReplAccount -All … | Test-PasswordQuality -WeakPasswordHashesSortedFile <lista>. Uwaga: operacja na hashach – tylko z zatwierdzeniem i na systemie T0.;Ręcznie (DSInternals);;;"Wymuś zmianę haseł kont ze słabymi hasłami; wdroż listę zakazanych haseł; konta z identycznymi hasłami (szczególnie admin/serwis) – natychmiast zmień.";Operacja wymaga uprawnień replikacji – wykonuj zgodnie z procedurą T0.;T1110
+PWD-08;AD – Hasła i konta;Brak haseł w atrybutach (description, info);Średnie;Niski;Pola opisowe obiektów nie zawierają haseł.;Każdy użytkownik domeny może odczytać opisy kont.;Get-ADUser -Filter * -Properties Description | ? Description -match 'pass|hasł|pwd';PowerShell, BloodHound;;;Usuń hasła z atrybutów i zmień hasła kont, których dotyczyły.;;T1552
+AUTH-01;AD – Protokoły i uwierzytelnianie;NTLMv1 i LM wyłączone;Krytyczne;Średni;"LmCompatibilityLevel = 5 na DC i wszystkich hostach; hash LM nie jest przechowywany.";NTLMv1/LM można złamać w kilka minut – przechwycenie uwierzytelnienia DC przez NTLMv1 to przejęcie domeny.;PingCastle: Old NTLM / LM hash authorized. Zdarzenia 4624 z LmPackageName = NTLM V1.;PingCastle, SIEM;S-OldNtlm,A-LMHashAuthorized;;"1. Audyt: znajdź 4624 z „NTLM V1” (kto jeszcze używa).
+2. GPO (DC + wszystkie): Network security: LAN Manager authentication level = Send NTLMv2 response only. Refuse LM & NTLM.
+3. GPO: Network security: Do not store LAN Manager hash value on next password change = Enabled.";Stare urządzenia (drukarki, skanery, NAS) mogą przestać się uwierzytelniać.;T1557.001
+AUTH-02;AD – Protokoły i uwierzytelnianie;Ograniczanie NTLM (audyt i plan wycofania);Średnie;Wysoki;Włączony audyt NTLM na DC, znane źródła NTLM, ograniczenia dla kont uprzywilejowanych.;NTLM umożliwia relay i pass-the-hash.;"GPO: Network security: Restrict NTLM: Audit NTLM authentication in this domain = Enable all; dziennik Microsoft-Windows-NTLM/Operational (8004).";SIEM, PowerShell;;;"1. Włącz audyt NTLM na DC i serwerach.
+2. Zbieraj 8004 w SIEM, identyfikuj aplikacje.
+3. Konta T0 w Protected Users (brak NTLM).
+4. Stopniowo: Restrict NTLM: Outgoing/Incoming z wyjątkami.";;T1557
+AUTH-03;AD – Protokoły i uwierzytelnianie;Wymuszone podpisywanie LDAP na DC;Wysokie;Średni;DC odrzucają niepodpisane powiązania LDAP (simple bind bez TLS, SASL bez podpisu).;Bez podpisu możliwy jest NTLM relay do LDAP – np. nadanie uprawnień lub RBCD i przejęcie serwerów.;"PingCastle: LDAP signing not required. Na DC: zdarzenia 2886/2887/2889 (Directory Service) – włącz rejestrowanie: HKLM\SYSTEM\CurrentControlSet\Services\NTDS\Diagnostics ""16 LDAP Interface Events""=2.";PingCastle, SIEM;A-DCLdapSign;;"1. Audyt klientów wysyłających niepodpisane żądania (2889).
+2. GPO dla DC: Domain controller: LDAP server signing requirements = Require signing (w nowszych: Enforce).
+3. GPO dla klientów: Network security: LDAP client signing requirements = Negotiate signing.";Aplikacje używające simple bind bez TLS przestaną działać – przejdź na LDAPS.;T1557
+AUTH-04;AD – Protokoły i uwierzytelnianie;Wymuszone LDAP channel binding (LDAPS);Wysokie;Średni;LDAPS wymaga powiązania kanału (EPA).;Chroni przed relay na LDAPS.;PingCastle: LDAPS channel binding. Zdarzenie 3039 (klienci nieobsługujący CBT) po włączeniu diagnostyki.;PingCastle, SIEM;A-DCLdapsChannelBinding;;GPO dla DC: Domain controller: LDAP server channel binding token requirements = When supported → po audycie Always.;;T1557
+AUTH-05;AD – Protokoły i uwierzytelnianie;Wymuszone podpisywanie SMB (DC, serwery, stacje);Wysokie;Średni;„Digitally sign communications (always)” włączone po stronie serwera i klienta.;Bez podpisu SMB możliwy jest NTLM relay do SMB – wykonanie kodu na serwerach.;PingCastle: SMB signing not required. Skan: nxc smb <zakres> --gen-relay-list (lista hostów bez podpisu).;PingCastle, skaner;A-SMB2SignatureNotRequired,A-SMB2SignatureNotEnabled;;"GPO: Microsoft network server: Digitally sign communications (always) = Enabled; Microsoft network client: Digitally sign communications (always) = Enabled. (Nowe Windows 11 24H2 / Server 2025 mają to domyślnie.)";"Niewielki narzut wydajności na serwerach plików; stare urządzenia NAS mogą wymagać aktualizacji.";T1557.001
+AUTH-06;AD – Protokoły i uwierzytelnianie;SMBv1 wyłączony;Wysokie;Niski;Protokół SMBv1 usunięty z DC, serwerów i stacji.;SMBv1 to podatny protokół (EternalBlue/WannaCry).;PingCastle: SMB v1 activated. Get-SmbServerConfiguration | Select EnableSMB1Protocol;PingCastle, PowerShell;S-SMB-v1;;"Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol; Set-SmbServerConfiguration -EnableSMB1Protocol $false. Najpierw audyt: Set-SmbServerConfiguration -AuditSmb1Access $true (zdarzenie 3000).";Stare urządzenia skanujące do folderu mogą wymagać SMBv2+.;T1210
+AUTH-07;AD – Protokoły i uwierzytelnianie;LLMNR, NBT-NS i mDNS wyłączone;Wysokie;Niski;Hosty nie używają rozgłoszeniowych protokołów rozwiązywania nazw.;Pozwalają atakującemu w sieci lokalnej przechwytywać hashe NTLM (Responder).;PingCastle: LLMNR not disabled. Skan: Responder w trybie analizy.;PingCastle, skaner;A-NoGPOLLMNR;;"LLMNR: GPO Computer > Administrative Templates > Network > DNS Client > Turn off multicast name resolution = Enabled.
+NBT-NS: opcja DHCP „Disable NetBIOS over TCP/IP” lub NetbiosOptions=2 (HKLM\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_*).
+mDNS: HKLM\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters EnableMDNS=0.";;T1557.001
+AUTH-08;AD – Protokoły i uwierzytelnianie;Ochrona przed WPAD i atakami IPv6 (mitm6);Średnie;Średni;"WPAD nie jest rozwiązywany przez rozgłoszenia/DNS; hosty nie przyjmują obcych serwerów DHCPv6/RA.";Atakujący w sieci może stać się bramą/proxy i przechwytywać uwierzytelnienia.;Sprawdź GlobalQueryBlockList na DNS (dnscmd /info /globalqueryblocklist), ustawienia auto-detect proxy, obecność DHCPv6.;Ręcznie, skaner;;;"1. Wpis „wpad” w GlobalQueryBlockList (domyślnie jest – nie usuwaj).
+2. Wyłącz automatyczne wykrywanie proxy, jeśli nieużywane.
+3. Zablokuj przychodzące DHCPv6/RA z nieautoryzowanych źródeł (RA Guard/DHCPv6 Guard na przełącznikach lub reguły firewall hosta). Nie wyłączaj IPv6 całkowicie – Microsoft tego nie zaleca.";;T1557
+AUTH-09;AD – Protokoły i uwierzytelnianie;Brak dostępu anonimowego do AD;Wysokie;Niski;"Grupa Pre-Windows 2000 Compatible Access nie zawiera Anonymous/Everyone; dsHeuristics nie włącza operacji anonimowych.";Anonimowe wyliczanie użytkowników i grup ułatwia rozpoznanie i spraying.;PingCastle: Pre-Windows 2000 / dsHeuristics anonymous.;PingCastle;A-PreWin2000Anonymous,A-PreWin2000Other,A-DsHeuristicsAnonymous;;"Usuń Anonymous Logon / Everyone z Pre-Windows 2000 Compatible Access (zostaw Authenticated Users tylko jeśli wymagane); wyczyść 7. znak dsHeuristics.";Stare aplikacje (NT4-era) mogą tego wymagać – test.;T1087.002
+AUTH-10;AD – Protokoły i uwierzytelnianie;Usługa Print Spooler wyłączona na DC;Wysokie;Niski;Spooler zatrzymany i wyłączony na kontrolerach domeny.;Spooler na DC pozwala wymusić uwierzytelnienie DC (PrinterBug) → relay/delegacja → przejęcie domeny.;PingCastle: Spooler on DC. Get-Service -ComputerName <DC> Spooler;PingCastle, PowerShell;A-DC-Spooler;;GPO dla DC: Computer > Windows Settings > Security Settings > System Services > Print Spooler = Disabled.;Czyszczenie przestarzałych drukarek w AD (pruning) na DC przestanie działać – zwykle niepotrzebne.;T1187
+AUTH-11;AD – Protokoły i uwierzytelnianie;Ograniczenie wymuszania uwierzytelnienia (coercion);Wysokie;Średni;Zablokowane lub ograniczone interfejsy wykorzystywane do wymuszania uwierzytelnienia (MS-EFSR/PetitPotam, MS-DFSNM, MS-FSRVP) na DC i serwerach T0.;Wymuszenie uwierzytelnienia DC w połączeniu z relay (np. do AD CS ESC8) daje przejęcie domeny.;Skaner (np. Coercer w trybie scan) przeciwko DC i serwerom T0 – tylko za zgodą.;Skaner, ręcznie;;;"1. Filtry RPC (netsh rpc filter) blokujące UUID MS-EFSR (c681d488-d850-11d0-8c52-00c04fd90f7e, df1941c5-fe89-4e79-bf10-463657acf44d) na DC.
+2. Wyłącz WebClient na serwerach.
+3. Najważniejsze: usuń cele relay – podpis SMB/LDAP (AUTH-03/05), EPA na AD CS (PKI-08).";;T1187
+ACL-01;AD – Uprawnienia i ścieżki ataku;Ścieżki ataku do Tier 0 (BloodHound);Krytyczne;Wysoki;Zwykli użytkownicy i komputery nie mają ścieżek przejęcia do grup/systemów T0.;Pokazuje, ilu pracowników po przejęciu jednego konta może zostać administratorem domeny.;"BloodHound: Shortest paths to Domain Admins / to Tier Zero from Domain Users, Domain Computers, Authenticated Users; odsetek użytkowników ze ścieżką do DA.
+PingCastle: Control paths (indirect Everyone/many).";BloodHound, PingCastle;P-ControlPathIndirectEveryone,P-ControlPathIndirectMany;;"1. Zidentyfikuj „wąskie gardła” (krawędzie występujące w wielu ścieżkach).
+2. Usuń zbędne ACE (GenericAll, WriteDacl, WriteOwner, AddMember, ForceChangePassword) na obiektach T0 i ich kontenerach.
+3. Usuń sesje adminów T0 z hostów niższych warstw (TIER-02).
+4. Powtórz analizę po zmianach i mierz spadek liczby ścieżek.";"Zmiany ACL testuj na pojedynczych obiektach; dokumentuj stan sprzed zmiany.";T1484, T1098
+ACL-02;AD – Uprawnienia i ścieżki ataku;Uprawnienia DCSync tylko dla DC i uzasadnionych kont;Krytyczne;Niski;Prawa DS-Replication-Get-Changes(-All) na obiekcie domeny mają tylko DC i konta synchronizacji (np. Entra Connect) traktowane jako T0.;Konto z DCSync może pobrać hashe wszystkich kont, w tym krbtgt.;BloodHound: DCSync rights. PowerShell/DSACLs na korzeniu domeny.;BloodHound, PowerShell;;;"Usuń nieuzasadnione ACE replikacji; konto Entra Connect (MSOL_/Sync_) traktuj i chroń jak T0 (serwer Entra Connect = T0).";;T1003.006
+ACL-03;AD – Uprawnienia i ścieżki ataku;Kontrola edycji GPO linkowanych do DC i T0;Krytyczne;Średni;Tylko administratorzy T0 mogą edytować GPO dotyczące DC/serwerów T0 oraz linkować GPO do tych OU.;Edycja GPO na OU kontrolerów domeny = wykonanie kodu na DC.;"BloodHound: GenericWrite/WriteDacl na GPO; Get-GPPermission -Name <GPO> -All";BloodHound, PowerShell;;;"Uporządkuj uprawnienia GPO (Edit settings/Delete/Modify security) i gPLink na OU T0; oddzielne GPO dla T0.";;T1484.001
+ACL-04;AD – Uprawnienia i ścieżki ataku;Właściciele obiektów T0 to administratorzy T0;Wysokie;Niski;Owner obiektów DC, grup T0 i kont admin to Domain Admins/Administrators.;Właściciel obiektu może zmienić jego uprawnienia.;PingCastle: DC owner. BloodHound: Owns.;PingCastle, BloodHound;P-DCOwner;;Zmień właściciela na Domain Admins (dsa.msc > Security > Advanced > Owner) lub przez Set-Acl.;;T1222.001
+ACL-05;AD – Uprawnienia i ścieżki ataku;Uprawnienia Exchange w AD ograniczone;Krytyczne;Średni;Grupy Exchange (Exchange Windows Permissions, Exchange Trusted Subsystem) nie mają WriteDACL na obiekcie domeny.;Historyczne uprawnienia Exchange pozwalały na eskalację do DCSync (PrivExchange).;PingCastle: Exchange privilege escalation. BloodHound: WriteDacl na domenie od grup Exchange.;PingCastle, BloodHound;P-ExchangePrivEsc;;"Zastosuj aktualne CU Exchange i uruchom /PrepareAD; rozważ Split Permissions; usuń WriteDACL z obiektu domeny.";;T1098
+ACL-06;AD – Uprawnienia i ścieżki ataku;Kontrola zapisu msDS-KeyCredentialLink (Shadow Credentials);Wysokie;Niski;Nikt poza uprawnionymi systemami nie może zapisywać msDS-KeyCredentialLink na kontach uprzywilejowanych i komputerach T0.;Zapis tego atrybutu pozwala uwierzytelnić się jako ofiara certyfikatem.;BloodHound: AddKeyCredentialLink.;BloodHound;;;"Usuń nadmiarowe ACE (GenericWrite/WriteProperty) na obiektach; monitoruj 5136 dla atrybutu msDS-KeyCredentialLink.";;T1556
+ACL-07;AD – Uprawnienia i ścieżki ataku;Kontrola odczytu haseł gMSA i LAPS;Wysokie;Niski;"Tylko przewidziane hosty mogą pobrać hasło gMSA; tylko właściwe grupy mogą czytać LAPS.";Nadmiarowe uprawnienia = odczyt haseł kont serwisowych/lokalnych adminów.;BloodHound: ReadGMSAPassword, ReadLAPSPassword.;BloodHound;;;"Ogranicz PrincipalsAllowedToRetrieveManagedPassword; popraw rozszerzone prawa LAPS (Find-LapsADExtendedRights).";;T1555
+DC-01;AD – Kontrolery domeny i las;Wspierane systemy i aktualne poprawki na DC;Krytyczne;Średni;DC działają na wspieranych wersjach Windows Server i mają bieżące poprawki bezpieczeństwa.;Niezałatane DC są podatne na znane ataki (np. Zerologon, noPac).;PingCastle: DC not updated / Operating systems. Get-ADDomainController -Filter * | Select Name,OperatingSystem;PingCastle, PowerShell;S-DC-NotUpdated;;"Plan aktualizacji comiesięcznych dla DC; migracja DC ze starszych systemów; testy w środowisku przedprodukcyjnym.";;T1210
+DC-02;AD – Kontrolery domeny i las;Kopia zapasowa AD i przetestowane odtworzenie lasu;Krytyczne;Średni;Regularny backup System State co najmniej 2 DC w domenie, kopie odizolowane, udokumentowana i przetestowana procedura odtworzenia lasu.;Bez sprawdzonej kopii AD atak ransomware lub zniszczenie AD oznacza długie zatrzymanie firmy.;PingCastle: Last AD backup. repadmin /showbackup;PingCastle, PowerShell;A-BackupMetadata;;"Backup System State (np. wbadmin start systemstatebackup) do lokalizacji niedostępnej z domeny; kopie offline/immutable; test odtworzenia lasu w izolowanej sieci co najmniej raz w roku.";;T1490
+DC-03;AD – Kontrolery domeny i las;AD Recycle Bin włączony;Niskie;Niski;Funkcja kosza AD włączona w lesie.;Ułatwia szybkie odtworzenie przypadkowo lub złośliwie usuniętych obiektów.;PingCastle: Recycle Bin. Get-ADOptionalFeature 'Recycle Bin Feature';PingCastle, PowerShell;P-RecycleBin;;Enable-ADOptionalFeature 'Recycle Bin Feature' -Scope ForestOrConfigurationSet -Target <las>;Nieodwracalne – ale bezpieczne.;
+DC-04;AD – Kontrolery domeny i las;DC bez zbędnych ról i oprogramowania;Wysokie;Średni;Na DC nie działają inne role (serwer plików, druk, aplikacje), ani agenci zarządzani z niższych warstw.;Każda dodatkowa usługa i agent to kolejna droga do przejęcia DC.;"Get-WindowsFeature | ? Installed; lista oprogramowania i usług na DC.";Ręcznie;;;"Przenieś role na serwery członkowskie; agentów zarządzających (AV/EDR/backup/monitoring) zarządzaj z konsol traktowanych jako T0.";;T1210
+DC-05;AD – Kontrolery domeny i las;Relacje zaufania: filtrowanie SID, brak nieużywanych trustów;Wysokie;Średni;Zewnętrzne trusty mają SID filtering (quarantine), nieaktywne trusty są usunięte, rozważono selective authentication.;Przejęta zaufana domena może stać się furtką do tej domeny (SID History).;PingCastle: sekcja Trusts. Get-ADTrust -Filter * | Select Name,Direction,SIDFilteringQuarantined,SelectiveAuthentication;PingCastle, PowerShell;T-SIDFiltering,T-Inactive;;"netdom trust <domena> /domain:<zaufana> /quarantine:yes; usuń nieużywane trusty; selective authentication dla trustów z podmiotami zewnętrznymi.";;T1134.005
+DC-06;AD – Kontrolery domeny i las;Brak SIDHistory na kontach;Średnie;Niski;Atrybut sIDHistory jest wyczyszczony po zakończonych migracjach.;SIDHistory może ukrywać uprawnienia administratora.;PingCastle: SID History. Get-ADUser -Filter {SIDHistory -like '*'} -Properties SIDHistory;PingCastle, PowerShell;;;Po zakończonej migracji wyczyść: Set-ADUser <konto> -Remove @{SIDHistory='<SID>'}.;Upewnij się, że zasoby w starej domenie nie są już używane.;T1134.005
+TIER-01;Model warstwowy;Zdefiniowane zasoby T0 i ich ochrona;Krytyczne;Wysoki;Zidentyfikowane wszystkie systemy T0 (DC, AD CS, ADFS, Entra Connect, backup AD, systemy PAM, hypervisory i storage hostujące DC, konsole zarządzające agentami na DC) i chronione jak DC.;Atakujący nie atakuje DC wprost – przejmuje system, który zarządza DC.;"Przegląd architektury; BloodHound: oznacz obiekty Tier Zero i sprawdź ścieżki do nich.";Ręcznie, BloodHound;;;"1. Lista zasobów T0 z właścicielami.
+2. Osobne OU, GPO i konta administracyjne T0.
+3. Te same wymagania (poprawki, EDR, logowanie, backup) co dla DC.";;
+TIER-02;Model warstwowy;Konta T0 nie logują się na systemy T1/T2;Krytyczne;Średni;GPO (Deny log on…) lub Authentication Policies and Silos uniemożliwiają logowanie kont T0 poza T0.;Logowanie admina T0 na stacji lub serwerze pozostawia jego poświadczenia w pamięci – po przejęciu tego hosta atakujący przejmuje domenę.;BloodHound: sesje kont T0 na hostach T1/T2 (HasSession). SIEM: 4624 kont T0 z hostów spoza T0.;BloodHound, SIEM;;;"GPO dla T1/T2: Deny log on locally, Deny log on through Remote Desktop Services, Deny access from the network, Deny log on as batch/service = grupy T0.
+Lepiej: Authentication Policy Silo dla kont T0 (ograniczenie do hostów T0).";Wymaga PAW i przygotowanych ścieżek administracji.;T1078.002
+TIER-03;Model warstwowy;Stacje PAW dla administratorów T0;Wysokie;Wysoki;Administracja T0 odbywa się wyłącznie z dedykowanych, utwardzonych stacji (PAW) bez poczty i internetu.;Stacja administratora jest najczęściej atakowanym elementem.;Przegląd: skąd logują się konta T0 (4624 IpAddress/WorkstationName).;SIEM, ręcznie;;;"Wdrożenie PAW (Credential Guard, WDAC, brak uprawnień lokalnych dla użytkownika, dostęp tylko do systemów T0); do czasu wdrożenia – jump host T0.";;
+MON-01;Monitoring i audyt;Zaawansowana polityka audytu na DC;Wysokie;Niski;Włączone kategorie audytu potrzebne do wykrywania ataków na AD.;Bez zdarzeń nie da się wykryć ani zbadać ataku.;PingCastle: Audit policy on DC. auditpol /get /category:* na DC.;PingCastle, PowerShell;A-AuditDC;;GPO Default Domain Controllers (Advanced Audit Policy Configuration): Kerberos Authentication Service i Service Ticket Operations (S/F), Credential Validation (S/F), Security Group Management (S), User Account Management (S/F), Computer Account Management (S), Directory Service Changes (S), Directory Service Access (S), Logon (S/F), Special Logon (S), Audit Policy Change (S). Plus: Audit: Force audit policy subcategory settings = Enabled.;Większy wolumen zdarzeń – uwzględnij licencję SIEM.;
+MON-02;Monitoring i audyt;Logi DC w SIEM i reguły wykrywania ataków na AD;Wysokie;Średni;"Wszystkie DC wysyłają dziennik Security do SIEM; działają reguły: DCSync, Kerberoasting, zmiany grup T0, zmiany GPO/ACL, logowania kont T0.";Wykrycie w godzinach zamiast miesięcy.;"SIEM: czy każdy DC raportuje; lista aktywnych reguł.";SIEM;;;"Onboarding DC do SIEM; reguły korelacyjne dla 4662 (replikacja), 4769 RC4, 4728/4732/4756, 5136 (GPO/ACL), 4624 kont T0; testy reguł (atomic tests).";;
+MON-03;Monitoring i audyt;Logowanie PowerShell na DC i serwerach T0;Średnie;Niski;Script Block Logging i Module Logging włączone.;PowerShell to podstawowe narzędzie atakujących w AD.;PingCastle: PowerShell audit. Zdarzenia 4104 w SIEM.;PingCastle, SIEM;A-AuditPowershell;;"GPO: Administrative Templates > Windows Components > Windows PowerShell > Turn on PowerShell Script Block Logging = Enabled; Turn on Module Logging = Enabled (*).";;T1059.001
+MON-04;Monitoring i audyt;Konta-pułapki (honeytokens);Niskie;Niski;Konta-pułapki (np. z SPN, w opisie „admin”) z alertem na każdą aktywność.;Tanie, bardzo wiarygodne wykrycie rozpoznania i Kerberoastingu.;SIEM: reguła na 4769/4624/4771 dla kont-pułapek.;SIEM;;;"Utwórz konto z SPN i atrakcyjną nazwą, bez uprawnień, z długim hasłem; alert na każde żądanie biletu lub logowanie.";;
+PKI-01;PKI (AD CS);Brak szablonów, w których wnioskujący podaje podmiot (ESC1);Krytyczne;Niski;Szablony z Client Authentication nie pozwalają zwykłym użytkownikom podawać SAN/podmiotu.;Dowolny użytkownik może uzyskać certyfikat jako administrator domeny.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC1). BloodHound CE: krawędzie AD CS (ESC1).;Certipy, BloodHound, PingCastle;A-CertTempCustomSubject;ESC1;"1. Wyłącz „Supply in the request” (CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT) albo
+2. wymagaj zatwierdzenia przez menedżera CA (CA certificate manager approval),
+3. ogranicz Enroll do wąskiej grupy,
+4. usuń EKU uwierzytelniania, jeśli zbędne.";Sprawdź, które systemy używają szablonu (np. certyfikaty serwerów www).;T1649
+PKI-02;PKI (AD CS);Brak szablonów „Any Purpose” / bez EKU (ESC2);Wysokie;Niski;Szablony dostępne dla użytkowników mają konkretne EKU.;Certyfikat „do wszystkiego” może posłużyć do uwierzytelnienia lub jako agent rejestracji.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC2). BloodHound CE: krawędzie AD CS (ESC2).;Certipy, BloodHound, PingCastle;A-CertTempAnyPurpose;ESC2;"Ustaw konkretne EKU; ogranicz uprawnienia Enroll.";;T1649
+PKI-03;PKI (AD CS);Kontrola szablonów Enrollment Agent (ESC3);Wysokie;Niski;Szablony z EKU Certificate Request Agent dostępne tylko dla wyznaczonych osób, z ograniczeniami agentów na CA.;Agent rejestracji może wnioskować o certyfikaty w imieniu dowolnego użytkownika.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC3). BloodHound CE: krawędzie AD CS (ESC3).;Certipy, BloodHound, PingCastle;A-CertTempAgent;ESC3;"Ogranicz Enroll; na CA: Properties > Enrollment Agents > Restrict enrollment agents (kto, dla kogo, jakie szablony).";;T1649
+PKI-04;PKI (AD CS);Brak niebezpiecznych uprawnień na szablonach (ESC4);Krytyczne;Niski;Tylko administratorzy PKI mają Write/FullControl/WriteDacl/WriteOwner na szablonach.;Modyfikacja szablonu pozwala zamienić go w ESC1.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC4). BloodHound CE: krawędzie AD CS (ESC4).;Certipy, BloodHound;;ESC4;Usuń uprawnienia zapisu dla Domain Users/Authenticated Users/Domain Computers i innych grup niebędących T0.;;T1649
+PKI-05;PKI (AD CS);Ochrona obiektów PKI w AD i serwera CA (ESC5);Krytyczne;Średni;ACL na kontenerach Public Key Services (Configuration NC), obiekcie komputera CA i NTAuthCertificates ograniczone do T0.;Kontrola nad obiektami PKI = możliwość wystawiania zaufanych certyfikatów.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC5). BloodHound CE: krawędzie AD CS (ESC5).;Certipy, BloodHound;;ESC5;"Przegląd i korekta ACL w CN=Public Key Services,CN=Services,CN=Configuration; serwer CA w T0.";;T1649
+PKI-06;PKI (AD CS);Flaga EDITF_ATTRIBUTESUBJECTALTNAME2 wyłączona na CA (ESC6);Krytyczne;Niski;CA nie akceptuje SAN podanego w atrybutach wniosku.;Każdy szablon z uwierzytelnianiem klienta staje się podatny jak ESC1.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC6). BloodHound CE: krawędzie AD CS (ESC6).;Certipy, BloodHound;;ESC6;"certutil -config ""<CA_host>\<CA_name>"" -setreg policy\EditFlags -EDITF_ATTRIBUTESUBJECTALTNAME2
+net stop certsvc && net start certsvc";;T1649
+PKI-07;PKI (AD CS);Uprawnienia ManageCA / ManageCertificates tylko dla adminów PKI (ESC7);Krytyczne;Niski;Tylko administratorzy PKI mają uprawnienia zarządzania CA i certyfikatami.;Pozwala włączyć ESC6 lub zatwierdzać własne złośliwe wnioski.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC7). BloodHound CE: krawędzie AD CS (ESC7).;Certipy, BloodHound;;ESC7;certsrv.msc > Właściwości CA > Security: usuń Manage CA / Issue and Manage Certificates dla grup nieuprawnionych.;;T1649
+PKI-08;PKI (AD CS);Web Enrollment / CES chronione przed NTLM relay (ESC8);Krytyczne;Średni;Brak HTTP Web Enrollment lub: tylko HTTPS + Extended Protection for Authentication + wyłączony NTLM.;Wymuszenie uwierzytelnienia DC + relay do Web Enrollment = certyfikat DC = przejęcie domeny.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC8). BloodHound CE: krawędzie AD CS (ESC8).;Certipy, BloodHound, PingCastle;A-CertEnrollHttp;ESC8;"1. Jeśli nieużywane – odinstaluj rolę Certification Authority Web Enrollment/CES.
+2. W przeciwnym razie: tylko HTTPS, włącz EPA (IIS > Windows Authentication > Advanced > Extended Protection = Required), wyłącz NTLM (tylko Negotiate:Kerberos).";Sprawdź, kto korzysta z /certsrv.;T1649
+PKI-09;PKI (AD CS);Silne mapowanie certyfikatów na DC (ESC9, ESC10);Wysokie;Średni;DC wymuszają silne mapowanie certyfikatów (StrongCertificateBindingEnforcement=2), szablony nie mają CT_FLAG_NO_SECURITY_EXTENSION, Schannel nie mapuje po UPN.;Słabe mapowanie pozwala uwierzytelnić się certyfikatem jako inne konto.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC9/ESC10). BloodHound CE: krawędzie AD CS (ESC9/ESC10).;Certipy, BloodHound;;ESC9/ESC10;"1. HKLM\SYSTEM\CurrentControlSet\Services\Kdc StrongCertificateBindingEnforcement = 2 (Microsoft przeszedł na pełne wymuszanie w 2025 r. – sprawdź poprawki DC).
+2. Usuń flagę No Security Extension z szablonów (certutil -dstemplate).
+3. HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel CertificateMappingMethods bez 0x4 (UPN).";;T1649
+PKI-10;PKI (AD CS);Wymuszone szyfrowanie żądań RPC do CA (ESC11);Wysokie;Niski;CA wymaga szyfrowania żądań ICPR (IF_ENFORCEENCRYPTICERTREQUEST).;Bez tego możliwy NTLM relay do interfejsu RPC CA.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC11). BloodHound CE: krawędzie AD CS (ESC11).;Certipy, BloodHound;;ESC11;"certutil -config ""<CA_host>\<CA_name>"" -setreg CA\InterfaceFlags +IF_ENFORCEENCRYPTICERTREQUEST; restart certsvc.";;T1649
+PKI-11;PKI (AD CS);Polityki wystawiania powiązane z grupami (ESC13);Średnie;Niski;Issuance policies z msDS-OIDToGroupLink nie są dostępne w szablonach dla szerokich grup.;Certyfikat daje członkostwo w powiązanej grupie uprzywilejowanej.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC13). BloodHound CE: krawędzie AD CS (ESC13).;Certipy, BloodHound;;ESC13;"Przejrzyj powiązania OID→grupa; ogranicz Enroll dla szablonów z takimi politykami.";;T1649
+PKI-12;PKI (AD CS);Słabe jawne mapowania altSecurityIdentities (ESC14);Średnie;Niski;Brak słabych mapowań (X509IssuerSubject, X509SubjectOnly, X509RFC822) i kontrola zapisu atrybutu altSecurityIdentities.;Pozwala uwierzytelnić się certyfikatem jako konto z mapowaniem.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC14). BloodHound CE: krawędzie AD CS (ESC14).;Certipy, BloodHound;;ESC14;"Zamień na silne mapowania (X509IssuerSerialNumber, X509SKI, X509SHA1PublicKey); usuń nadmiarowe prawa zapisu altSecurityIdentities.";;T1649
+PKI-13;PKI (AD CS);Poprawka dla szablonów w schemacie v1 (ESC15 / CVE-2024-49019);Wysokie;Niski;"CA ma poprawkę z listopada 2024; szablony v1 z „Supply in request” wycofane lub zastąpione wersją v2+.";Pozwala dodać dowolne zasady aplikacji do certyfikatu z szablonu v1 (np. WebServer).;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC15). BloodHound CE: krawędzie AD CS (ESC15).;Certipy, BloodHound;;ESC15;"Zainstaluj poprawki na CA; zduplikuj szablony v1 (np. WebServer) do nowej wersji i ogranicz Enroll.";;T1649
+PKI-14;PKI (AD CS);Rozszerzenie bezpieczeństwa SID nie jest wyłączone na CA (ESC16);Wysokie;Niski;CA nie ma szOID_NTDS_CA_SECURITY_EXT (1.3.6.1.4.1.311.25.2) na liście DisableExtensionList.;Wszystkie certyfikaty są podatne na słabe mapowanie (jak ESC9) w całej domenie.;Certipy: certipy find -u <user>@<domena> -vulnerable -stdout (sekcja ESC16). BloodHound CE: krawędzie AD CS (ESC16).;Certipy, BloodHound;;ESC16;"certutil -config ""<CA_host>\<CA_name>"" -setreg policy\DisableExtensionList -1.3.6.1.4.1.311.25.2; restart certsvc.";;T1649
+PKI-15;PKI (AD CS);Serwery CA traktowane jako T0;Krytyczne;Średni;"Serwery CA administrowane kontami T0, z PAW, chronione jak DC; klucz CA chroniony (HSM lub co najmniej backup w sejfie).";Przejęcie CA pozwala wystawić certyfikat dla dowolnego konta (Golden Certificate).;Przegląd lokalnych administratorów CA, agentów, kopii zapasowych klucza.;Ręcznie, BloodHound;;;"Konta admin CA = T0; brak agentów z niższych warstw; backup klucza CA offline; rozważ HSM.";;T1649
+PKI-16;PKI (AD CS);Offline Root CA, ważność i dostępność CRL/AIA;Średnie;Średni;Root CA offline, publikacja CRL/AIA dostępna i aktualna, rozsądne okresy ważności.;"Niedostępna CRL może zablokować uwierzytelnianie; online root CA to łatwiejszy cel.";"pkiview.msc; certutil -verify -urlfetch <cert>";Ręcznie;;;"Root offline, subordinate issuing CA; monitorowanie ważności CRL; procedura ponownego podpisu CRL.";;
+PKI-17;PKI (AD CS);Audyt AD CS włączony;Średnie;Niski;Włączony audyt CA (wnioski, wystawienia, zmiany szablonów i konfiguracji) i wysyłka do SIEM.;Pozwala wykryć nadużycia ESC i wystawienie nieuprawnionych certyfikatów.;"certutil -getreg CA\AuditFilter; auditpol: Object Access > Certification Services.";Ręcznie, SIEM;;;"certutil -setreg CA\AuditFilter 127; włącz podkategorię Certification Services (S/F); zdarzenia 4886/4887/4888/4898/4899/4900 do SIEM.";;T1649
+PKI-18;PKI (AD CS);Nieużywane szablony wycofane z publikacji;Niskie;Niski;Na CA opublikowane są tylko szablony w użyciu.;Mniej szablonów = mniejsza powierzchnia ataku.;certipy find (lista opublikowanych szablonów) vs faktyczne użycie.;Certipy;;;certsrv.msc > Certificate Templates > usuń nieużywane z publikacji (szablon zostaje w AD, ale nie jest wystawiany).;;
+EP-01;Końcówki – poświadczenia;Credential Guard włączony;Wysokie;Średni;VBS i Credential Guard działają na stacjach i serwerach (poza DC).;Chroni hashe NTLM i bilety Kerberos przed kradzieżą z pamięci (Mimikatz).;"(Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard).SecurityServicesRunning zawiera 1; msinfo32.";PowerShell, Intune/SCCM;;;"GPO: Computer > Administrative Templates > System > Device Guard > Turn On Virtualization Based Security = Enabled; Platform Security Level = Secure Boot (and DMA Protection); Credential Guard Configuration = Enabled with UEFI lock (lub without lock na etapie pilotażu).
+Windows 11 22H2+ Enterprise włącza go domyślnie na zgodnym sprzęcie.";Blokuje NTLMv1, MS-CHAPv2 (stare VPN/Wi-Fi PEAP), delegację nieograniczoną i DES dla chronionych poświadczeń – pilotaż.;T1003.001
+EP-02;Końcówki – poświadczenia;Ochrona LSA (LSASS jako proces chroniony);Wysokie;Niski;LSASS działa jako PPL (RunAsPPL).;Utrudnia zrzut pamięci LSASS i wstrzykiwanie do niego.;"Zdarzenie 12 (Wininit) w dzienniku System po starcie; reg query HKLM\SYSTEM\CurrentControlSet\Control\Lsa /v RunAsPPL";PowerShell;;;"1. Audyt zgodności: HKLM\...\Image File Execution Options\LSASS.exe AuditLevel=8 (zdarzenia 3065/3066).
+2. GPO: Computer > Administrative Templates > System > Local Security Authority > Configure LSASS to run as a protected process = Enabled with UEFI Lock (RunAsPPL=1) lub without UEFI Lock (RunAsPPL=2, Win11 22H2+).";Niepodpisane wtyczki LSA (stare smart-card, SSO) przestaną się ładować.;T1003.001
+EP-03;Końcówki – poświadczenia;WDigest wyłączony;Wysokie;Niski;Hasła nie są przechowywane w pamięci w postaci jawnej.;Włączony WDigest = hasła jawnym tekstem w pamięci.;reg query HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential (brak lub 0).;PowerShell;;;Ustaw UseLogonCredential=0 (GPO Preferences) i alertuj w SIEM na zmianę tej wartości (Sysmon 13).;;T1003.001
+EP-04;Końcówki – poświadczenia;Ograniczone buforowanie poświadczeń;Średnie;Niski;Serwery nie buforują logowań (0–1), stacje 1–2.;Bufor poświadczeń (DCC2) może zostać złamany offline.;GPO: Interactive logon: Number of previous logons to cache.;GPO;;;"Serwery: 0–1; laptopy: 1–2 (praca bez VPN).";Za niska wartość na laptopach uniemożliwi logowanie offline.;T1003.005
+EP-05;Końcówki – poświadczenia;Konta lokalne bez logowania sieciowego i RDP;Wysokie;Niski;Lokalne konta administratorów nie mogą logować się przez sieć/RDP.;Blokuje ruch boczny z użyciem lokalnych haseł (także gdy LAPS nie jest wszędzie).;GPO: User Rights Assignment. Rejestr: LocalAccountTokenFilterPolicy (brak lub 0).;GPO, PowerShell;;;GPO dla stacji/serwerów: Deny access to this computer from the network i Deny log on through Remote Desktop Services = „Local account and member of Administrators group” (S-1-5-114). Upewnij się, że LocalAccountTokenFilterPolicy ≠ 1.;;T1021.002
+EP-06;Końcówki – poświadczenia;Remote Credential Guard / Restricted Admin dla RDP administratorów;Średnie;Niski;Administratorzy łączą się RDP bez wysyłania poświadczeń na serwer docelowy.;Poświadczenia admina nie zostają w pamięci serwera, z którym się łączy.;GPO: Restrict delegation of credentials to remote servers.;GPO;;;"GPO: Computer > Administrative Templates > System > Credentials Delegation > Restrict delegation of credentials to remote servers = Require Remote Credential Guard (lub Restrict Credential Delegation); połączenia: mstsc /remoteGuard.";;T1021.001
+EP-10;Końcówki – PowerShell i skrypty;PowerShell Constrained Language Mode wymuszony przez WDAC/AppLocker;Wysokie;Wysoki;Dla użytkowników (i niezaufanych skryptów) PowerShell działa w ConstrainedLanguage, wymuszonym przez App Control for Business (WDAC) lub AppLocker w trybie Enforce.;Blokuje większość złośliwego kodu PowerShell (wywołania .NET/Win32 API, wstrzykiwanie).;$ExecutionContext.SessionState.LanguageMode w sesji zwykłego użytkownika = ConstrainedLanguage.;PowerShell;;;"1. Wdroż WDAC (lub AppLocker ze skryptowymi regułami) – najpierw w trybie audytu.
+2. Zaufane skrypty administracyjne podpisuj certyfikatem i dopuszczaj w polityce.
+3. NIE polegaj na zmiennej __PSLockdownPolicy – nie jest granicą bezpieczeństwa.
+4. Dla administracji zdalnej rozważ JEA.";Skrypty logowania i narzędzia IT muszą być podpisane lub dopuszczone – duży wysiłek wdrożeniowy.;T1059.001
+EP-11;Końcówki – PowerShell i skrypty;PowerShell 2.0 usunięty;Średnie;Niski;Silnik PowerShell 2.0 nie jest zainstalowany (brak możliwości obejścia logowania i CLM przez powershell -version 2).;Downgrade do PS 2.0 omija logowanie i AMSI.;Get-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root;PowerShell;;;Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root (w najnowszych wersjach Windows komponent został już usunięty).;Bardzo stare skrypty mogą wymagać PS 2.0 – rzadkie.;T1059.001
+EP-12;Końcówki – PowerShell i skrypty;Logowanie PowerShell na końcówkach;Średnie;Niski;"Script Block Logging (4104) włączone, zdarzenia trafiają do SIEM/EDR; opcjonalnie transkrypcja do chronionego udziału.";Widoczność złośliwych skryptów, także zaciemnionych.;Zdarzenia 4104 z końcówek w SIEM.;SIEM;;;"GPO: Windows Components > Windows PowerShell > Turn on PowerShell Script Block Logging = Enabled; Module Logging = Enabled; (opcjonalnie) Transcription do udziału z uprawnieniem tylko zapisu.";Wolumen logów – filtruj w SIEM.;T1059.001
+EP-13;Końcówki – PowerShell i skrypty;Kontrola aplikacji (WDAC/AppLocker);Wysokie;Wysoki;Użytkownicy nie mogą uruchamiać plików wykonywalnych z katalogów zapisywalnych (Downloads, AppData, Temp).;Blokuje większość malware dostarczanego przez phishing.;"Get-AppLockerPolicy -Effective; stan polityk WDAC (CiTool --list-policies).";PowerShell;;;Etap 1: AppLocker/WDAC – reguły domyślne (Windows, Program Files) w trybie audytu → enforce. Etap 2: blokada LOLBinów niepotrzebnych użytkownikom (mshta, wscript, cscript, regsvr32 dla użytkowników).;Wymaga inwentaryzacji aplikacji.;T1204.002
+EP-14;Końcówki – PowerShell i skrypty;Makra Office z internetu zablokowane;Wysokie;Niski;"Makra w plikach z Mark-of-the-Web są blokowane; pozostałe tylko podpisane.";Makra to jedna z głównych dróg infekcji.;GPO/Intune: ustawienia Trust Center dla Word/Excel/PowerPoint.;GPO;;;"User Configuration > Administrative Templates > Microsoft Office > [aplikacja] > Options > Security > Trust Center: Block macros from running in Office files from the Internet = Enabled; VBA Macro Notification Settings = Disable all except digitally signed macros.";Działy używające makr – podpisywanie makr.;T1204.002
+EP-15;Końcówki – PowerShell i skrypty;Blokada Windows Script Host / HTA dla użytkowników;Średnie;Niski;Pliki .js, .vbs, .wsf, .hta nie uruchamiają się dwuklikiem.;Częsty ładunek w załącznikach i archiwach.;"Sprawdź skojarzenia plików; test dwukliku na pliku .js.";GPO;;;"GPO Preferences: skojarz .js/.jse/.vbs/.vbe/.wsf/.hta z notepad.exe; lub HKCU\Software\Microsoft\Windows Script Host\Settings Enabled=0 dla użytkowników; blokada mshta w WDAC/AppLocker.";;T1059.005
+EP-20;Końcówki – ochrona systemu;Reguły ASR (Defender) w trybie blokowania;Wysokie;Średni;Kluczowe reguły Attack Surface Reduction włączone w trybie Block.;Blokują typowe techniki: kradzież z LSASS, procesy potomne Office, uruchamianie z poczty.;Get-MpPreference | Select AttackSurfaceReductionRules_Ids,AttackSurfaceReductionRules_Actions;PowerShell, Defender;;;"Priorytetowe reguły (Block = 1), najpierw audyt (2):
+• Block credential stealing from LSASS – 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+• Block Office apps from creating child processes – d4f940ab-401b-4efc-aadc-ad5f3c50688a
+• Block executable content from email – be9ba2d9-53ea-4cdc-84e5-9b1eeee46550
+• Block abuse of exploited vulnerable signed drivers – 56a863a9-875e-4185-98a7-b882c64b5ce5
+• Block JS/VBS from launching downloaded executable content – d3e037e1-3eb8-44c8-a917-57927947596d
+GUID-y zweryfikuj z aktualną dokumentacją Microsoft.";Tryb audytu przez 2–4 tygodnie, potem wyjątki i Block.;T1003.001, T1204
+EP-21;Końcówki – ochrona systemu;EDR na wszystkich hostach i ochrona przed manipulacją;Krytyczne;Średni;EDR/AV zainstalowany i raportujący na 100% stacji i serwerów, Tamper Protection włączona.;Host bez EDR to ślepa plamka – atakujący wybiera właśnie taki.;Porównanie liczby hostów w AD z konsolą EDR.;Konsola EDR, PowerShell;;;"Raport pokrycia (AD vs EDR) co miesiąc; włącz Tamper Protection; alert na wyłączenie agenta.";;T1562.001
+EP-22;Końcówki – ochrona systemu;VBS / HVCI i Secure Boot;Średnie;Średni;"Secure Boot i Memory Integrity (HVCI) włączone; blokowanie podatnych sterowników.";Utrudnia ładowanie złośliwych i podatnych sterowników (BYOVD).;msinfo32: Secure Boot State, Virtualization-based security Services Running.;PowerShell;;;"GPO Device Guard: Virtualization Based Protection of Code Integrity = Enabled with UEFI lock; Microsoft vulnerable driver blocklist włączona.";Stare sterowniki mogą być niezgodne – test.;T1068
+EP-23;Końcówki – ochrona systemu;Szyfrowanie dysków (BitLocker);Średnie;Średni;Laptopy i stacje szyfrowane (TPM, na laptopach TPM+PIN), klucze odzyskiwania w AD/Entra.;Chroni dane i poświadczenia z buforu przy utracie sprzętu.;"manage-bde -status; raport kluczy w AD.";PowerShell;;;GPO BitLocker: wymuś szyfrowanie dysku systemowego, zapis kluczy odzyskiwania w AD DS przed szyfrowaniem.;;T1005
+EP-24;Końcówki – ochrona systemu;Wspierane systemy operacyjne na końcówkach i serwerach;Wysokie;Wysoki;Brak systemów po końcu wsparcia (np. Windows 7/8.1, Server 2008/2012) lub są odizolowane.;Systemy bez poprawek to łatwy punkt wejścia.;PingCastle: Operating systems. Get-ADComputer -Filter {Enabled -eq $true} -Properties OperatingSystem | Group OperatingSystem;PingCastle, PowerShell;;;"Plan migracji; do czasu migracji – segmentacja, brak logowania kont uprzywilejowanych, ESU jeśli dostępne.";;T1210
+EP-30;Końcówki – sieć i dostęp zdalny;Firewall hosta blokuje ruch między stacjami;Wysokie;Średni;Stacje nie przyjmują połączeń SMB/RPC/RDP/WinRM od innych stacji (tylko z podsieci zarządzających).;Zatrzymuje ruch boczny i rozprzestrzenianie ransomware.;"GPO Windows Defender Firewall; test połączeń stacja→stacja.";GPO, skaner;;;"GPO: reguły przychodzące 445/135/139/3389/5985-5986 tylko z podsieci IT/PAW; domyślnie blokuj przychodzące na profilu domenowym stacji.";Narzędzia helpdesku wymagające dostępu do stacji – dopuść z podsieci IT.;T1021
+EP-31;Końcówki – sieć i dostęp zdalny;RDP i WinRM ograniczone do administracji;Średnie;Niski;"RDP z NLA, dostęp tylko dla wyznaczonych grup i z jump hostów; WinRM tylko z podsieci zarządzających.";Ogranicza zdalne logowanie po przejęciu poświadczeń.;"GPO: Allow log on through Remote Desktop Services; konfiguracja WinRM (TrustedHosts nie *).";GPO;;;"Grupy Remote Desktop Users per warstwa; NLA wymagane; WinRM: listener tylko HTTPS lub ograniczony firewall; JEA dla zadań rutynowych.";;T1021.001
+EP-32;Końcówki – sieć i dostęp zdalny;Brak użytkowników domenowych w lokalnych administratorach;Wysokie;Średni;Lokalna grupa Administrators zawiera tylko konto LAPS i właściwą grupę admin danej warstwy.;Szerokie uprawnienia lokalnego admina (np. Domain Users) ułatwiają kradzież poświadczeń i ruch boczny.;BloodHound: AdminTo z grup szerokich (Domain Users, Authenticated Users).;BloodHound, GPO;;;"GPO Restricted Groups / Group Policy Preferences (Local Users and Groups) – ustaw członków lokalnych Administrators per OU; usuń Domain Users itp.";;T1078.003
+</script>
+<script>
+"use strict";
+// AuDitor-AD · Copyright (c) 2026 Marcin Lewandowski <marcin.lewandowski.x@gmail.com> · SPDX-License-Identifier: MIT
+const APP={name:"AuDitor-AD",version:"1.0.0",author:"Marcin Lewandowski",contact:"marcin.lewandowski.x@gmail.com",license:"MIT",repo:"https://github.com/mael777it/AuDitor-AD"};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+// klucze "adsec.*" zostają bez zmian, aby zachować ustawienia i sejf z wersji „AD Security Assessment”
+const K={vaultCache:"adsec.vaultcache",cases:"adsec.none",db:"adsec.db",settings:"adsec.settings",active:"adsec.active",theme:"adsec.theme"};
+const RISKS=["Krytyczne","Wysokie","Średnie","Niskie"],W={"Krytyczne":10,"Wysokie":5,"Średnie":2,"Niskie":1};
+const ST={"":"Nie oceniono",ok:"Zgodne",part:"Częściowo",fail:"Niezgodne",na:"N/D"},STV={ok:1,part:.5,fail:0};
+const PLAN={"":"Brak planu",planned:"Zaplanowane",progress:"W realizacji",done:"Wdrożone",accepted:"Ryzyko zaakceptowane"};
+const PRIO={P1:"P1 – do 30 dni",P2:"P2 – do 90 dni",P3:"P3 – do 180 dni",P4:"P4 – do 12 mies."},PRIO_DAYS={P1:30,P2:90,P3:180,P4:365};
+const ACC_TAGS=["Członek grupy T0","Kerberoastable (SPN)","AS-REP (bez preauth)","Delegacja nieograniczona","Delegacja do usług T0","Uprawnienia DCSync","Ścieżka do DA (BloodHound)","Może uzyskać cert. jako admin (ESC)","Shadow credentials","Hasło nigdy nie wygasa","Stare hasło (>1 rok)","PasswordNotRequired","Hasło odwracalne","Nieaktywne, ale włączone","SIDHistory","Właściciel obiektów T0","Konto serwisowe z uprawnieniami admin","Inne"];
+const ACC_TYPES=["Użytkownik","Administrator","Serwisowe","gMSA/sMSA","Komputer","Grupa"];
+const ACC_ST={todo:"Do analizy",planned:"Zaplanowane",progress:"W realizacji",fixed:"Naprawione",accepted:"Ryzyko zaakceptowane"};
+const ESCMAP={ESC1:"PKI-01",ESC2:"PKI-02",ESC3:"PKI-03",ESC4:"PKI-04",ESC5:"PKI-05",ESC6:"PKI-06",ESC7:"PKI-07",ESC8:"PKI-08",ESC9:"PKI-09",ESC10:"PKI-09",ESC11:"PKI-10",ESC13:"PKI-11",ESC14:"PKI-12",ESC15:"PKI-13",ESC16:"PKI-14"};
+
+// ---------- utils ----------
+const p2=n=>String(n).padStart(2,"0");
+const now=()=>new Date().toISOString();
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`};
+const fmt=iso=>{if(!iso)return"";const d=new Date(iso);if(isNaN(d))return iso;return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`};
+const fmtD=s=>s?String(s).slice(0,10):"";
+const localInput=d=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`;
+const addDays=(s,n)=>{const d=s?new Date(s+"T12:00:00"):new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2400)}
+function download(name,content,type){const blob=new Blob([content],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function parseCSV(text){text=text.replace(/^﻿/,"");const first=text.split(/\r?\n/)[0];const delim=(first.split(";").length>=first.split(",").length)?";":",";
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===delim){row.push(f);f=""}else if(c==="\n"){row.push(f);rows.push(row);row=[];f=""}else if(c!=="\r")f+=c}
+  if(f!==""||row.length){row.push(f);rows.push(row)}
+  const hdr=rows.shift().map(h=>h.trim().toLowerCase());return rows.filter(r=>r.some(x=>x.trim())).map(r=>{const o={};hdr.forEach((h,i)=>o[h]=(r[i]||"").trim());return o})}
+function toCSV(rows,cols){const e=v=>{v=v==null?"":String(v);return /[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};return "﻿"+[cols.join(";")].concat(rows.map(r=>cols.map(c=>e(r[c])).join(";"))).join("\r\n")}
+
+// ---------- catalog ----------
+let CAT,catSource="wbudowany";
+function buildCat(rows){const need=["id","area","title","risk"];if(!rows.length||need.some(k=>!(k in rows[0])))throw new Error("Brak kolumn: "+need.join(", "));
+  const list=rows.map(r=>({...r,risk:RISKS.includes(r.risk)?r.risk:"Średnie",pcIds:(r.pingcastle||"").split(/[,;\s]+/).filter(Boolean),escIds:(r.certipy||"").split(/[\/,;\s]+/).filter(Boolean)}));
+  const map={};list.forEach(c=>map[c.id]=c);const areas=[...new Set(list.map(c=>c.area))];return {list,map,areas,rows}}
+function loadCat(){const s=LS.get(K.db,null);try{if(s){CAT=buildCat(parseCSV(s.csv));catSource=s.name;return}}catch(e){}
+  CAT=buildCat(parseCSV(document.getElementById("defaultDb").textContent));catSource="wbudowany"}
+
+// ---------- state ----------
+let settings=Object.assign({lockMin:15,assessor:"",org:""},LS.get(K.settings,{}));
+let domains=[];let activeId=LS.get(K.active,null);
+const ui={view:"domain",tab:"overview",open:{},f:{area:"",status:"",risk:"",q:"",onlyOpen:false},accEdit:null,cmpArea:"",cmpDiff:false,imp:null};
+const cur=()=>domains.find(d=>d.id===activeId);
+const logD=(d,t)=>{d.log=d.log||[];d.log.push({ts:now(),text:t})};
+function newDomain(name){return {id:uid("d"),name:name||"nowa.domena.local",forest:"",netbios:"",fl:"",dcCount:"",assessDate:today(),assessor:settings.assessor||"",scope:"",summary:"",
+  pc:{global:"",stale:"",priv:"",trust:"",anomaly:""},bh:{usersPct:"",compPct:"",t0:"",notes:""},ctl:{},custom:[],accounts:[],imports:[],log:[{ts:now(),text:"Utworzono ocenę domeny"}],created:now()}}
+function controlsOf(d){return CAT.list.concat((d.custom||[]).map(c=>({...c,custom:true,pcIds:[],escIds:[]})))}
+function ctlState(d,id){return d.ctl[id]||(d.ctl[id]={status:"",evidence:"",objects:"",source:"",prio:"",owner:"",deadline:"",plan:"",notes:"",accept:"",updated:""})}
+function autoPrio(risk,st){if(st==="fail")return {Krytyczne:"P1",Wysokie:"P2","Średnie":"P3",Niskie:"P4"}[risk];if(st==="part")return {Krytyczne:"P2",Wysokie:"P3","Średnie":"P4",Niskie:"P4"}[risk];return ""}
+const prioOf=(c,s)=>s.prio||autoPrio(c.risk,s.status)||"";
+function stats(d){const cs=controlsOf(d);let sw=0,sv=0,assessed=0,tot=cs.length;const cnt={"":0,ok:0,part:0,fail:0,na:0};const byArea={};const openBy={Krytyczne:0,Wysokie:0,"Średnie":0,Niskie:0};let critFail=0;
+  cs.forEach(c=>{const s=(d.ctl[c.id]||{}).status||"";cnt[s]++;if(s)assessed++;const a=byArea[c.area]=byArea[c.area]||{sw:0,sv:0,n:0,fail:0,part:0,ok:0,un:0,na:0,crit:0};a.n++;
+    if(s==="")a.un++;else if(s==="na")a.na++;else{sw+=W[c.risk];sv+=W[c.risk]*STV[s];a.sw+=W[c.risk];a.sv+=W[c.risk]*STV[s];a[s]++}
+    if(s==="fail"||s==="part"){const pl=(d.ctl[c.id]||{}).plan;if(pl!=="done"&&pl!=="accepted")openBy[c.risk]++}
+    if(s==="fail"&&(c.risk==="Krytyczne"))critFail++;if(s==="fail"&&c.risk==="Krytyczne")a.crit++});
+  const pct=sw?Math.round(sv/sw*100):null;let g=pct==null?"":pct>=90?"A":pct>=75?"B":pct>=60?"C":pct>=40?"D":"E";
+  if(g&&critFail>0&&"AB".includes(g))g="C";
+  Object.values(byArea).forEach(a=>a.pct=a.sw?Math.round(a.sv/a.sw*100):null);
+  const accs=d.accounts||[];const accOpen=accs.filter(a=>a.status!=="fixed"&&a.status!=="accepted");
+  const plan=cs.filter(c=>{const s=d.ctl[c.id];return s&&(s.status==="fail"||s.status==="part")});const planDone=plan.filter(c=>d.ctl[c.id].plan==="done").length;
+  return {tot,assessed,cov:tot?Math.round(assessed/tot*100):0,pct,grade:g,cnt,byArea,openBy,critFail,accs,accOpen,plan,planDone}}
+function gradeHtml(g,sm){return `<span class="grade ${sm?"sm":""} g-${g||""}">${g||"–"}</span>`}
+
+// ---------- sidebar ----------
+function renderSidebar(){const el=document.getElementById("domList");
+  if(!Vault.key){el.innerHTML='<div class="meta">Sejf zablokowany.</div>';return}
+  el.innerHTML=domains.length?domains.map(d=>{const s=stats(d);return `<div class="item ${d.id===activeId&&ui.view==="domain"?"active":""}" data-id="${d.id}">${gradeHtml(s.grade,1)}
+    <div style="min-width:0"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis">${esc(d.name)}</div><div class="meta">${s.pct==null?"brak oceny":s.pct+"% zgodności"} · ocen. ${s.cov}%</div></div></div>`}).join("")
+    :'<div class="meta">Brak domen. Dodaj pierwszą.</div>';
+  el.querySelectorAll(".item").forEach(x=>x.onclick=()=>{activeId=x.dataset.id;LS.set(K.active,activeId);ui.view="domain";render()})}
+document.getElementById("btnAddDom").onclick=()=>{if(!Vault.key)return;const n=prompt("Nazwa domeny (FQDN):","");if(n==null)return;const d=newDomain(n.trim()||undefined);domains.push(d);activeId=d.id;ui.view="domain";ui.tab="overview";save();render()};
+document.getElementById("btnCompare").onclick=()=>{if(!Vault.key)return;ui.view="compare";render()};
+
+// ---------- main ----------
+function render(){
+  document.getElementById("dbInfo").textContent=`Katalog: ${catSource} · ${CAT.list.length} kontroli`;
+  renderSidebar();const m=document.getElementById("main");
+  if(!Vault.key){m.innerHTML="";return}
+  if(ui.view==="compare"){m.innerHTML=renderCompare();bindCompare();return}
+  const d=cur();
+  if(!d){m.innerHTML=`<div class="card empty"><p><b>Dodaj domenę, aby rozpocząć ocenę.</b></p><p>Dla każdej domeny oceniasz ${CAT.list.length} kontroli (AD, PKI, końcówki, model warstwowy), wpisujesz niebezpieczne konta i plan naprawczy, a na końcu generujesz raport dla administratorów i managementu.</p><button class="primary" onclick="document.getElementById('btnAddDom').click()">+ Dodaj domenę</button></div>`;return}
+  const s=stats(d);
+  let h=`<div class="card"><div class="row" style="justify-content:space-between"><div class="row">${gradeHtml(s.grade)}<div><div style="font-size:18px;font-weight:700">${esc(d.name)}</div>
+    <div class="meta">Ocena z ${esc(fmtD(d.assessDate))} · ${esc(d.assessor||"—")} · zgodność ${s.pct==null?"–":s.pct+"%"} · oceniono ${s.assessed}/${s.tot} (${s.cov}%)</div></div></div>
+    <div class="row"><button class="small danger" id="btnDelDom">Usuń domenę</button></div></div></div>
+  <div class="tabs">${[["overview","Przegląd i mapa"],["controls",`Kontrole (${s.tot})`],["accounts",`Konta niebezpieczne (${s.accs.length})`],["plan",`Plan naprawczy (${s.plan.length})`],["import","Import narzędzi"],["log","Dziennik"]]
+    .map(([k,l])=>`<button data-tab="${k}" class="${ui.tab===k?"on":""}">${l}</button>`).join("")}</div>`;
+  if(ui.tab==="overview")h+=renderOverview(d,s);else if(ui.tab==="controls")h+=renderControls(d);else if(ui.tab==="accounts")h+=renderAccounts(d);
+  else if(ui.tab==="plan")h+=renderPlan(d);else if(ui.tab==="import")h+=renderImport(d);else h+=renderLog(d);
+  m.innerHTML=h;bindMain(d);
+}
+function fld(label,path,val,type){return `<div><label>${label}</label><input data-p="${path}" value="${esc(val)}" ${type?`type="${type}"`:""}></div>`}
+function renderOverview(d,s){
+  const k=(v,l,c)=>`<div class="kpi"><div class="v" ${c?`style="color:${c}"`:""}>${v}</div><div class="l">${l}</div></div>`;
+  let h=`<div class="kpis">${k(`${gradeHtml(s.grade)}`,"Ocena ogólna (A–E)")}${k(s.pct==null?"–":s.pct+"%","Zgodność ważona ryzykiem")}${k(s.cov+"%","Pokrycie oceny")}
+    ${k(s.openBy.Krytyczne,"Otwarte krytyczne","var(--bad)")}${k(s.openBy.Wysokie,"Otwarte wysokie","var(--part)")}${k(s.accOpen.length,"Niebezpieczne konta (otwarte)")}
+    ${k(s.plan.length?Math.round(s.planDone/s.plan.length*100)+"%":"–","Plan naprawczy wdrożony")}</div>`;
+  h+=`<div class="card cmap"><h2>Mapa pokrycia – ${esc(d.name)}</h2>`;
+  CAT.areas.concat([...new Set((d.custom||[]).map(c=>c.area))].filter(a=>!CAT.areas.includes(a))).forEach(a=>{const cs=controlsOf(d).filter(c=>c.area===a);if(!cs.length)return;const as=s.byArea[a]||{};
+    h+=`<div class="arow"><div class="an">${esc(a)}<div class="bar" style="margin-top:4px"><div style="width:${as.pct||0}%;background:${barColor(as.pct)}"></div></div></div>
+      <div class="tiles">${cs.map(c=>{const st=(d.ctl[c.id]||{}).status||"";return `<div class="tile s-${st}" data-go="${esc(c.id)}" title="${esc(c.id+" · "+c.title+" · "+c.risk+" · "+ST[st])}">${esc(c.id)}</div>`}).join("")}</div>
+      <div class="pct">${as.pct==null?"–":as.pct+"%"}</div></div>`});
+  h+=`<div class="legend"><span><i class="s-ok"></i>Zgodne</span><span><i class="s-part"></i>Częściowo</span><span><i class="s-fail"></i>Niezgodne</span><span><i class="s-na"></i>N/D</span><span><i class="s-"></i>Nie oceniono</span><span class="meta">Kliknij kafelek, aby przejść do kontroli.</span></div></div>`;
+  h+=`<div class="two"><div class="card"><h2>Dane domeny</h2><div class="grid">
+      ${fld("Domena (FQDN)","name",d.name)}${fld("Las","forest",d.forest)}${fld("NetBIOS","netbios",d.netbios)}${fld("Poziom funkcjonalny","fl",d.fl)}${fld("Liczba DC","dcCount",d.dcCount)}
+      ${fld("Data oceny","assessDate",d.assessDate,"date")}${fld("Oceniający","assessor",d.assessor)}</div>
+      <div style="margin-top:8px"><label>Zakres i ograniczenia oceny</label><textarea data-p="scope" rows="2">${esc(d.scope)}</textarea></div></div>
+    <div class="card"><h2>Wyniki narzędzi</h2>
+      <div class="meta" style="margin-bottom:6px">PingCastle (0–100, im niżej tym lepiej)</div><div class="grid">
+      ${fld("Global","pc.global",d.pc.global,"number")}${fld("Stale Objects","pc.stale",d.pc.stale,"number")}${fld("Privileged Accounts","pc.priv",d.pc.priv,"number")}${fld("Trusts","pc.trust",d.pc.trust,"number")}${fld("Anomalies","pc.anomaly",d.pc.anomaly,"number")}</div>
+      <div class="meta" style="margin:10px 0 6px">BloodHound</div><div class="grid">
+      ${fld("% użytkowników ze ścieżką do DA","bh.usersPct",d.bh.usersPct,"number")}${fld("% komputerów ze ścieżką do DA","bh.compPct",d.bh.compPct,"number")}${fld("Liczba obiektów Tier Zero","bh.t0",d.bh.t0,"number")}</div>
+      <div style="margin-top:8px"><label>Najważniejsze ścieżki ataku / uwagi BloodHound</label><textarea data-p="bh.notes" rows="2">${esc(d.bh.notes)}</textarea></div></div></div>
+  <div class="card"><h2>Podsumowanie dla kierownictwa</h2><div class="meta">Trafia na początek raportu zarządczego. Pisz językiem ryzyka biznesowego (co może się stać, jak bardzo jest źle, co jest potrzebne).</div>
+    <textarea data-p="summary" rows="5" style="margin-top:6px">${esc(d.summary)}</textarea></div>`;
+  return h}
+const barColor=p=>p==null?"var(--un)":p>=90?"var(--ok)":p>=60?"var(--part)":"var(--bad)";
+
+function renderControls(d){const f=ui.f;const cs=controlsOf(d);
+  let h=`<div class="filters"><select id="fArea"><option value="">Wszystkie obszary</option>${[...new Set(cs.map(c=>c.area))].map(a=>`<option ${a===f.area?"selected":""}>${esc(a)}</option>`).join("")}</select>
+    <select id="fStatus"><option value="">Każdy status</option>${Object.entries(ST).map(([k,v])=>`<option value="${k||"un"}" ${(k||"un")===f.status?"selected":""}>${v}</option>`).join("")}</select>
+    <select id="fRisk"><option value="">Każde ryzyko</option>${RISKS.map(r=>`<option ${r===f.risk?"selected":""}>${r}</option>`).join("")}</select>
+    <input id="fQ" placeholder="Szukaj (ID, tytuł, reguła PingCastle, ESC…)" value="${esc(f.q)}" style="min-width:240px">
+    <button class="small" id="expAll">Rozwiń</button><button class="small" id="colAll">Zwiń</button><span class="spacer"></span><button id="btnCustom">+ Własne znalezisko</button></div>`;
+  let lastA=null,n=0;
+  cs.forEach(c=>{const s=d.ctl[c.id]||{};const st=s.status||"";
+    if(f.area&&c.area!==f.area)return;if(f.status&&(f.status==="un"?st!=="":st!==f.status))return;if(f.risk&&c.risk!==f.risk)return;
+    if(f.q){const q=f.q.toLowerCase();if(![c.id,c.title,c.pingcastle,c.certipy,c.description,s.evidence,s.objects].join(" ").toLowerCase().includes(q))return}
+    n++;if(c.area!==lastA){h+=`<div class="areah">${esc(c.area)}</div>`;lastA=c.area}
+    const pr=prioOf(c,s);
+    h+=`<div class="ctl st-${st} ${ui.open[c.id]?"open":""}" data-c="${esc(c.id)}"><div class="ctlh">
+      <div class="t"><span class="id">${esc(c.id)}</span>${esc(c.title)} ${c.custom?'<span class="pill">własne</span>':""}${s.evidence||s.objects?' <span class="meta">📝</span>':""}</div>
+      <span class="badge r-${esc(c.risk)}">${esc(c.risk)}</span>${pr&&(st==="fail"||st==="part")?`<span class="badge">${pr}${s.plan?" · "+PLAN[s.plan]:""}</span>`:""}
+      <div class="seg">${["ok","part","fail","na"].map(v=>`<button class="b-${v} ${st===v?"on":""}" data-st="${v}">${ST[v]}</button>`).join("")}</div></div>
+      <div class="ctlb">${ui.open[c.id]?ctlBody(d,c,s):""}</div></div>`});
+  if(!n)h+=`<div class="card empty">Brak kontroli dla wybranych filtrów.</div>`;
+  return h}
+function ctlBody(d,c,s){const i=(t,v)=>v?`<div class="info"><b>${t}</b>${esc(v)}</div>`:"";
+  return `<div class="two"><div>
+      ${i("Opis",c.description)}${i("Ryzyko biznesowe",c.business_risk)}${i("Jak zweryfikować",c.check)}
+      <div class="info"><b>Źródła i mapowanie</b>${esc(c.sources||"")}${c.pingcastle?`<br>PingCastle: ${c.pcIds.map(x=>`<span class="pill">${esc(x)}</span>`).join("")}`:""}${c.certipy?`<br>Certipy: <span class="pill">${esc(c.certipy)}</span>`:""}${c.mitre?`<br>MITRE: ${esc(c.mitre)}`:""}${c.custom&&c.src?`<br>${esc(c.src)}`:""}</div>
+      <div class="info"><b>Jak naprawić / skonfigurować</b></div><div class="fixbox">${esc(c.remediation||"")}</div>
+      ${i("Wpływ wdrożenia / ryzyko zmiany",c.impact)}${i("Nakład",c.effort)}
+      ${c.custom?`<div class="row"><button class="small" data-cu-edit="${esc(c.id)}">Edytuj własne znalezisko</button><button class="small danger" data-cu-del="${esc(c.id)}">Usuń</button></div>`:""}
+    </div><div>
+      <label>Ustalenia / dowody (wynik z PingCastle, BloodHound, Certipy, PowerShell)</label><textarea data-cf="evidence" rows="4">${esc(s.evidence)}</textarea>
+      <div style="margin-top:8px"><label>Obiekty, których dotyczy (konta, hosty, szablony, GPO)</label><textarea data-cf="objects" rows="3">${esc(s.objects)}</textarea></div>
+      <div style="margin-top:8px"><label>Źródło / data pomiaru</label><input data-cf="source" value="${esc(s.source)}" placeholder="np. PingCastle 3.x, 2026-09-18"></div>
+      <div class="grid" style="margin-top:8px">
+        <div><label>Priorytet (auto: ${autoPrio(c.risk,s.status)||"–"})</label><select data-cf="prio"><option value="">Automatyczny</option>${Object.entries(PRIO).map(([k,v])=>`<option value="${k}" ${s.prio===k?"selected":""}>${v}</option>`).join("")}</select></div>
+        <div><label>Właściciel</label><input data-cf="owner" value="${esc(s.owner)}"></div>
+        <div><label>Termin</label><input type="date" data-cf="deadline" value="${esc(s.deadline)}"></div>
+        <div><label>Status planu</label><select data-cf="plan">${Object.entries(PLAN).map(([k,v])=>`<option value="${k}" ${s.plan===k?"selected":""}>${v}</option>`).join("")}</select></div></div>
+      <div style="margin-top:8px"><label>Konfiguracja specyficzna dla tej domeny / kroki wdrożenia</label><textarea data-cf="notes" rows="3" placeholder="np. GPO „SEC-DC-Baseline”, OU=Tier0; najpierw pilotaż na DC01">${esc(s.notes)}</textarea></div>
+      <div style="margin-top:8px"><label>Uzasadnienie N/D lub akceptacji ryzyka (kto zaakceptował, do kiedy)</label><textarea data-cf="accept" rows="2">${esc(s.accept)}</textarea></div>
+      <div class="meta" style="margin-top:6px">${s.updated?"Ostatnia zmiana: "+fmt(s.updated):""}</div>
+    </div></div>`}
+
+function renderAccounts(d){const e=ui.accEdit?(d.accounts.find(a=>a.id===ui.accEdit)||null):null;const v=e||{name:"",type:"Użytkownik",tags:[],source:"BloodHound",risk:"Wysokie",owner:"",action:"",status:"todo",deadline:"",note:""};
+  const rs=[...d.accounts].sort((a,b)=>RISKS.indexOf(a.risk)-RISKS.indexOf(b.risk)||a.name.localeCompare(b.name));
+  return `<div class="card"><h2>${e?"Edycja konta":"Dodaj niebezpieczne konto"}</h2>
+    <div class="grid"><div><label>Konto (sAMAccountName / UPN)</label><input id="aName" value="${esc(v.name)}"></div>
+      <div><label>Typ</label><select id="aType">${ACC_TYPES.map(t=>`<option ${t===v.type?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>Ryzyko</label><select id="aRisk">${RISKS.map(t=>`<option ${t===v.risk?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>Źródło</label><select id="aSrc">${["BloodHound","PingCastle","Certipy","PowerShell","Inne"].map(t=>`<option ${t===v.source?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>Właściciel konta</label><input id="aOwner" value="${esc(v.owner)}"></div>
+      <div><label>Status</label><select id="aSt">${Object.entries(ACC_ST).map(([k,t])=>`<option value="${k}" ${k===v.status?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div><label>Termin</label><input type="date" id="aDl" value="${esc(v.deadline)}"></div></div>
+    <div style="margin-top:10px"><label>Dlaczego jest niebezpieczne</label><div class="tags">${ACC_TAGS.map(t=>`<label><input type="checkbox" data-tag="${esc(t)}" ${v.tags.includes(t)?"checked":""}>${esc(t)}</label>`).join("")}</div></div>
+    <div class="two" style="margin-top:10px"><div><label>Działanie naprawcze</label><textarea id="aAct" rows="2" placeholder="np. usunąć z Domain Admins, migracja na gMSA, reset hasła">${esc(v.action)}</textarea></div>
+      <div><label>Szczegóły / dowód (ścieżka BloodHound, szablon ESC…)</label><textarea id="aNote" rows="2">${esc(v.note)}</textarea></div></div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="aSave">${e?"Zapisz zmiany":"Dodaj konto"}</button>${e?'<button id="aCancel">Anuluj</button>':""}
+      <span class="spacer"></span><details><summary class="meta" style="cursor:pointer">Wklej wiele kont naraz</summary><div style="margin-top:6px"><textarea id="aBulk" rows="4" placeholder="jedno konto w linii – otrzymają typ, ryzyko, źródło i zaznaczone powody z formularza powyżej"></textarea><button class="small" id="aBulkAdd" style="margin-top:4px">Dodaj wszystkie</button></div></details></div></div>
+  <div class="card"><h2>Rejestr kont (${d.accounts.length})</h2>${rs.length?`<table class="t"><thead><tr><th>Konto</th><th>Typ</th><th>Ryzyko</th><th>Powody</th><th>Działanie</th><th>Właściciel</th><th>Status</th><th>Termin</th><th></th></tr></thead><tbody>
+    ${rs.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.note?`<div class="meta">${esc(a.note)}</div>`:""}</td><td>${esc(a.type)}</td><td><span class="badge r-${esc(a.risk)}">${esc(a.risk)}</span></td>
+      <td>${a.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</td><td>${esc(a.action)}</td><td>${esc(a.owner)}</td><td>${esc(ACC_ST[a.status])}</td><td>${esc(a.deadline)}</td>
+      <td style="white-space:nowrap"><button class="small" data-aed="${a.id}">✎</button> <button class="small danger" data-adel="${a.id}">✕</button></td></tr>`).join("")}</tbody></table>`:'<div class="meta">Brak kont w rejestrze.</div>'}</div>`}
+
+function planRows(d){return controlsOf(d).filter(c=>{const s=d.ctl[c.id];return s&&(s.status==="fail"||s.status==="part")})
+  .map(c=>({c,s:d.ctl[c.id],p:prioOf(c,d.ctl[c.id])})).sort((a,b)=>(a.p||"P9").localeCompare(b.p||"P9")||RISKS.indexOf(a.c.risk)-RISKS.indexOf(b.c.risk))}
+function renderPlan(d){const rows=planRows(d);const hz={P1:0,P2:0,P3:0,P4:0};rows.forEach(r=>{if(r.s.plan!=="done"&&r.s.plan!=="accepted")hz[r.p]=(hz[r.p]||0)+1});
+  return `<div class="kpis">${Object.entries(PRIO).map(([k,v])=>`<div class="kpi"><div class="v">${hz[k]||0}</div><div class="l">${v} (otwarte)</div></div>`).join("")}</div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Plan naprawczy – niezgodne i częściowo zgodne</h2>
+    <button id="btnDefDl">Uzupełnij puste terminy wg priorytetu (od daty oceny)</button></div>
+  ${rows.length?`<table class="t" style="margin-top:10px"><thead><tr><th>ID</th><th>Kontrola</th><th>Ryzyko</th><th>Status</th><th>Priorytet</th><th>Właściciel</th><th>Termin</th><th>Status planu</th></tr></thead><tbody>
+  ${rows.map(({c,s,p})=>`<tr data-pc="${esc(c.id)}"><td><button class="link" data-go="${esc(c.id)}">${esc(c.id)}</button></td><td>${esc(c.title)}</td><td><span class="badge r-${esc(c.risk)}">${esc(c.risk)}</span></td><td>${ST[s.status]}</td>
+    <td><select data-pf="prio"><option value="">Auto (${autoPrio(c.risk,s.status)})</option>${Object.keys(PRIO).map(k=>`<option ${s.prio===k?"selected":""}>${k}</option>`).join("")}</select></td>
+    <td><input data-pf="owner" value="${esc(s.owner)}"></td><td><input type="date" data-pf="deadline" value="${esc(s.deadline)}"></td>
+    <td><select data-pf="plan">${Object.entries(PLAN).map(([k,v])=>`<option value="${k}" ${s.plan===k?"selected":""}>${v}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table>`
+  :'<div class="meta" style="margin-top:8px">Brak niezgodności – oznacz kontrole w zakładce „Kontrole”.</div>'}</div>`}
+
+function renderImport(d){const im=ui.imp&&ui.imp.dom===d.id?ui.imp:null;
+  let h=`<div class="banner">Import pomocniczy: odczytuje raport XML PingCastle i JSON z Certipy, a następnie proponuje statusy kontroli. Wynik zawsze zweryfikuj – mapowanie reguł na kontrole jest orientacyjne.</div>
+  <div class="two"><div class="card"><h2>PingCastle – raport XML</h2><div class="meta">Plik <code>ad_hc_&lt;domena&gt;.xml</code> z <code>PingCastle.exe --healthcheck</code>.</div>
+      <input type="file" id="impPc" accept=".xml" style="margin-top:8px"></div>
+    <div class="card"><h2>Certipy – JSON</h2><div class="meta">Plik z <code>certipy find -u &lt;user&gt;@&lt;domena&gt; -json</code> (najlepiej bez -vulnerable, by widzieć też bezpieczne szablony).</div>
+      <input type="file" id="impCe" accept=".json" style="margin-top:8px"></div></div>`;
+  if(im){h+=`<div class="card"><h2>Podgląd importu: ${esc(im.tool)} – ${esc(im.file)}</h2>`;
+    if(im.domain&&im.domain.toLowerCase()!==d.name.toLowerCase())h+=`<div class="banner">Uwaga: raport dotyczy domeny <b>${esc(im.domain)}</b>, a wybrana jest <b>${esc(d.name)}</b>.</div>`;
+    if(im.scores)h+=`<div class="meta">Wyniki: Global ${im.scores.global} · Stale ${im.scores.stale} · Privileged ${im.scores.priv} · Trusts ${im.scores.trust} · Anomalies ${im.scores.anomaly}</div>`;
+    h+=`<table class="t" style="margin-top:8px"><thead><tr><th>${im.tool==="PingCastle"?"Reguła":"Podatność"}</th><th>Szczegóły</th><th>Kontrola</th><th>Obecny status</th></tr></thead><tbody>
+      ${im.items.map(x=>`<tr><td><b>${esc(x.key)}</b>${x.points!=null?` <span class="meta">(${x.points} pkt)</span>`:""}</td><td>${esc(x.text)}</td><td>${x.ctl?`<b>${esc(x.ctl)}</b> ${esc((CAT.map[x.ctl]||{}).title||"")}`:'<span class="meta">brak mapowania</span>'}</td><td>${x.ctl?ST[(d.ctl[x.ctl]||{}).status||""]:""}</td></tr>`).join("")}</tbody></table>
+      <div style="margin-top:10px">
+      <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="impFail" checked style="width:auto"> oznacz zmapowane kontrole jako <b>Niezgodne</b> i dopisz ustalenia</label>
+      <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="impOverwrite" style="width:auto"> nadpisz kontrole już ocenione (domyślnie tylko nieocenione)</label>
+      ${im.tool==="PingCastle"?`<label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="impCustom" checked style="width:auto"> dodaj niezmapowane reguły jako własne znaleziska</label>
+      <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="impScores" checked style="width:auto"> zapisz wyniki PingCastle w danych domeny</label>`:""}
+      <label style="display:flex;gap:6px;align-items:center;color:var(--text)"><input type="checkbox" id="impOk" style="width:auto"> oznacz jako <b>Zgodne</b> nieocenione kontrole z mapowaniem ${im.tool==="PingCastle"?"PingCastle":"ESC"}, dla których narzędzie nic nie wykazało</label>
+      </div><div class="row" style="margin-top:10px"><button class="primary" id="impApply">Zastosuj import</button><button id="impCancel">Anuluj</button></div></div>`}
+  h+=`<div class="card"><h2>Historia importów</h2>${(d.imports||[]).length?d.imports.map(x=>`<div class="meta">${fmt(x.ts)} · ${esc(x.tool)} · ${esc(x.file)} · ${esc(x.summary)}</div>`).join(""):'<div class="meta">Brak.</div>'}</div>`;
+  return h}
+function renderLog(d){return `<div class="card"><h2>Dziennik zmian</h2>${[...(d.log||[])].reverse().map(e=>`<div class="meta" style="padding:3px 0;border-bottom:1px dashed var(--border)">${fmt(e.ts)} – ${esc(e.text)}</div>`).join("")}</div>`}
+
+// ---------- compare ----------
+function renderCompare(){if(!domains.length)return `<div class="card empty">Brak domen.</div>`;
+  const ss=domains.map(d=>stats(d));const areas=CAT.areas;
+  let h=`<div class="card"><h2>Porównanie domen</h2><table class="t mx"><thead><tr><th>Wskaźnik</th>${domains.map(d=>`<th style="text-align:center">${esc(d.name)}</th>`).join("")}</tr></thead><tbody>
+    <tr><td>Ocena</td>${ss.map(s=>`<td class="c">${gradeHtml(s.grade,1)}</td>`).join("")}</tr>
+    <tr><td>Zgodność ważona ryzykiem</td>${ss.map(s=>`<td class="c"><b>${s.pct==null?"–":s.pct+"%"}</b></td>`).join("")}</tr>
+    <tr><td>Pokrycie oceny</td>${ss.map(s=>`<td class="c">${s.cov}%</td>`).join("")}</tr>
+    <tr><td>Otwarte krytyczne / wysokie</td>${ss.map(s=>`<td class="c">${s.openBy.Krytyczne} / ${s.openBy.Wysokie}</td>`).join("")}</tr>
+    <tr><td>PingCastle Global</td>${domains.map(d=>`<td class="c">${esc(d.pc.global||"–")}</td>`).join("")}</tr>
+    <tr><td>Niebezpieczne konta (otwarte)</td>${ss.map(s=>`<td class="c">${s.accOpen.length}</td>`).join("")}</tr>
+    ${areas.map(a=>`<tr><td>${esc(a)}</td>${ss.map(s=>{const p=(s.byArea[a]||{}).pct;return `<td class="c"><span style="color:${barColor(p)};font-weight:700">${p==null?"–":p+"%"}</span></td>`}).join("")}</tr>`).join("")}
+  </tbody></table></div>
+  <div class="card"><div class="filters"><select id="cmpArea"><option value="">Wszystkie obszary</option>${areas.map(a=>`<option ${a===ui.cmpArea?"selected":""}>${esc(a)}</option>`).join("")}</select>
+    <label style="display:flex;gap:6px;align-items:center;color:var(--text);margin:0"><input type="checkbox" id="cmpDiff" style="width:auto" ${ui.cmpDiff?"checked":""}> tylko kontrole z niezgodnością w którejkolwiek domenie</label>
+    <span class="spacer"></span><button id="cmpCsv">Pobierz macierz CSV</button></div>
+  <table class="t mx"><thead><tr><th>Kontrola</th><th>Ryzyko</th>${domains.map(d=>`<th style="text-align:center">${esc(d.name)}</th>`).join("")}</tr></thead><tbody>`;
+  const lab={"":"–",ok:"✓",part:"½",fail:"✗",na:"N/D"};
+  CAT.list.forEach(c=>{if(ui.cmpArea&&c.area!==ui.cmpArea)return;const sts=domains.map(d=>(d.ctl[c.id]||{}).status||"");
+    if(ui.cmpDiff&&!sts.some(s=>s==="fail"||s==="part"))return;
+    h+=`<tr><td><span class="meta">${esc(c.id)}</span> ${esc(c.title)}</td><td><span class="badge r-${esc(c.risk)}">${esc(c.risk)}</span></td>${sts.map((s,i)=>`<td class="c"><span class="cell s-${s}" data-cmpgo="${domains[i].id}|${esc(c.id)}" style="cursor:pointer" title="${esc(domains[i].name+": "+ST[s])}">${lab[s]}</span></td>`).join("")}</tr>`});
+  return h+`</tbody></table></div>`}
+function bindCompare(){const $=id=>document.getElementById(id);
+  $("cmpArea").onchange=e=>{ui.cmpArea=e.target.value;render()};$("cmpDiff").onchange=e=>{ui.cmpDiff=e.target.checked;render()};
+  $("cmpCsv").onclick=()=>{const rows=CAT.list.map(c=>{const r={id:c.id,kontrola:c.title,obszar:c.area,ryzyko:c.risk};domains.forEach(d=>r[d.name]=ST[(d.ctl[c.id]||{}).status||""]);return r});
+    download("porownanie_domen.csv",toCSV(rows,["id","kontrola","obszar","ryzyko",...domains.map(d=>d.name)]),"text/csv;charset=utf-8")};
+  document.querySelectorAll("[data-cmpgo]").forEach(x=>x.onclick=()=>{const [did,cid]=x.dataset.cmpgo.split("|");activeId=did;ui.view="domain";goCtl(cid)})}
+function goCtl(id){ui.tab="controls";ui.f={area:"",status:"",risk:"",q:"",onlyOpen:false};ui.open={[id]:1};render();
+  setTimeout(()=>{const el=document.querySelector(`.ctl[data-c="${CSS.escape(id)}"]`);if(el)el.scrollIntoView({block:"center"})},30)}
+
+// ---------- binding ----------
+function setPath(o,p,v){const k=p.split(".");let x=o;for(let i=0;i<k.length-1;i++)x=x[k[i]]=x[k[i]]||{};x[k[k.length-1]]=v}
+function bindMain(d){const m=document.getElementById("main");const $=id=>document.getElementById(id);
+  m.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ui.tab=b.dataset.tab;render()});
+  $("btnDelDom").onclick=()=>{if(!confirm(`Usunąć ocenę domeny ${d.name} ze wszystkimi danymi?`))return;domains=domains.filter(x=>x!==d);activeId=domains[0]?domains[0].id:null;save();render()};
+  m.querySelectorAll("[data-p]").forEach(el=>{el.oninput=()=>{setPath(d,el.dataset.p,el.value);save();clearTimeout(el._t);el._t=setTimeout(renderSidebar,400)}});
+  m.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>goCtl(el.dataset.go));
+  if(ui.tab==="controls"){
+    const rf=()=>{render()};
+    $("fArea").onchange=e=>{ui.f.area=e.target.value;rf()};$("fStatus").onchange=e=>{ui.f.status=e.target.value;rf()};$("fRisk").onchange=e=>{ui.f.risk=e.target.value;rf()};
+    $("fQ").oninput=e=>{ui.f.q=e.target.value;clearTimeout(ui.qt);ui.qt=setTimeout(()=>{render();const f=$("fQ");f.focus();f.setSelectionRange(f.value.length,f.value.length)},300)};
+    $("expAll").onclick=()=>{m.querySelectorAll(".ctl").forEach(x=>ui.open[x.dataset.c]=1);render()};$("colAll").onclick=()=>{ui.open={};render()};
+    $("btnCustom").onclick=()=>openCustom(d,null);
+    m.querySelectorAll(".ctl").forEach(el=>{const id=el.dataset.c;const c=controlsOf(d).find(x=>x.id===id);
+      el.querySelector(".t").onclick=()=>{if(ui.open[id])delete ui.open[id];else ui.open[id]=1;render()};
+      el.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{const s=ctlState(d,id);const nv=s.status===b.dataset.st?"":b.dataset.st;const old=s.status;s.status=nv;s.updated=now();
+        logD(d,`${id}: ${ST[old]} → ${ST[nv]}`);if((nv==="fail"||nv==="part")&&!s.deadline){const p=prioOf(c,s);if(p)s.deadline=addDays(d.assessDate,PRIO_DAYS[p])}
+        if(nv==="fail"||nv==="part"||nv==="na")ui.open[id]=1;save();render()});
+      el.querySelectorAll("[data-cf]").forEach(x=>{const f=x.dataset.cf;const h=()=>{const s=ctlState(d,id);s[f]=x.value;s.updated=now();save()};
+        x.oninput=h;if(x.tagName==="SELECT")x.onchange=()=>{h();logD(d,`${id}: ${f==="plan"?"status planu":"priorytet"} → ${x.options[x.selectedIndex].text}`);render()}});
+      const ce=el.querySelector("[data-cu-edit]");if(ce)ce.onclick=()=>openCustom(d,id);
+      const cd=el.querySelector("[data-cu-del]");if(cd)cd.onclick=()=>{if(!confirm("Usunąć własne znalezisko?"))return;d.custom=d.custom.filter(x=>x.id!==id);delete d.ctl[id];logD(d,`Usunięto własne znalezisko ${id}`);save();render()}});
+  }
+  if(ui.tab==="accounts"){
+    const read=()=>({name:$("aName").value.trim(),type:$("aType").value,risk:$("aRisk").value,source:$("aSrc").value,owner:$("aOwner").value.trim(),status:$("aSt").value,deadline:$("aDl").value,
+      action:$("aAct").value.trim(),note:$("aNote").value.trim(),tags:[...m.querySelectorAll("[data-tag]:checked")].map(x=>x.dataset.tag)});
+    $("aSave").onclick=()=>{const v=read();if(!v.name)return toast("Podaj nazwę konta");
+      if(ui.accEdit){Object.assign(d.accounts.find(a=>a.id===ui.accEdit),v);logD(d,`Konto ${v.name}: zaktualizowano`);ui.accEdit=null}
+      else{d.accounts.push({id:uid("a"),...v,created:now()});logD(d,`Dodano niebezpieczne konto ${v.name}`)}save();render()};
+    if($("aCancel"))$("aCancel").onclick=()=>{ui.accEdit=null;render()};
+    $("aBulkAdd").onclick=()=>{const v=read();const names=$("aBulk").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);if(!names.length)return;
+      let n=0;names.forEach(nm=>{if(d.accounts.some(a=>a.name.toLowerCase()===nm.toLowerCase()))return;d.accounts.push({id:uid("a"),...v,name:nm,created:now()});n++});
+      logD(d,`Dodano ${n} kont (lista)`);save();render();toast(`Dodano ${n} kont (pominięto duplikaty)`)};
+    m.querySelectorAll("[data-aed]").forEach(b=>b.onclick=()=>{ui.accEdit=b.dataset.aed;render();window.scrollTo({top:0})});
+    m.querySelectorAll("[data-adel]").forEach(b=>b.onclick=()=>{const a=d.accounts.find(x=>x.id===b.dataset.adel);if(!confirm(`Usunąć ${a.name} z rejestru?`))return;d.accounts=d.accounts.filter(x=>x!==a);logD(d,`Usunięto konto ${a.name}`);save();render()});
+  }
+  if(ui.tab==="plan"){
+    m.querySelectorAll("tr[data-pc]").forEach(tr=>{const id=tr.dataset.pc;tr.querySelectorAll("[data-pf]").forEach(x=>{const f=x.dataset.pf;
+      const h=()=>{const s=ctlState(d,id);s[f]=x.value;s.updated=now();save()};x.oninput=h;if(x.tagName==="SELECT")x.onchange=()=>{h();render()}})});
+    $("btnDefDl").onclick=()=>{let n=0;planRows(d).forEach(({s,p})=>{if(!s.deadline&&p){s.deadline=addDays(d.assessDate,PRIO_DAYS[p]);n++}});save();render();toast(`Uzupełniono ${n} terminów`)};
+  }
+  if(ui.tab==="import"){
+    $("impPc").onchange=e=>readFile(e.target,t=>{try{ui.imp=parsePingCastle(t,e.target.files[0].name,d);render()}catch(err){alert("Błąd odczytu PingCastle: "+err.message)}});
+    $("impCe").onchange=e=>readFile(e.target,t=>{try{ui.imp=parseCertipy(t,e.target.files[0].name,d);render()}catch(err){alert("Błąd odczytu Certipy: "+err.message)}});
+    if($("impApply"))$("impApply").onclick=()=>applyImport(d);
+    if($("impCancel"))$("impCancel").onclick=()=>{ui.imp=null;render()};
+  }
+}
+function readFile(inp,cb){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsText(f)}
+
+// ---------- custom findings ----------
+const dlgC=document.getElementById("dlgCustom");
+function openCustom(d,id){const e=id?d.custom.find(x=>x.id===id):null;const $=x=>document.getElementById(x);
+  $("cuTitle").textContent=e?"Edycja własnego znaleziska":"Własne znalezisko";
+  $("cuArea").innerHTML=CAT.areas.concat(["Inne"]).map(a=>`<option ${e&&e.area===a?"selected":""}>${esc(a)}</option>`).join("");
+  $("cuRisk").value=e?e.risk:"Średnie";$("cuEffort").value=e?e.effort:"Średni";$("cuSrc").value=e?e.src||"":"";$("cuT").value=e?e.title:"";$("cuD").value=e?e.description:"";$("cuB").value=e?e.business_risk:"";$("cuF").value=e?e.remediation:"";
+  dlgC.showModal();
+  $("cuOk").onclick=()=>{const v={area:$("cuArea").value,risk:$("cuRisk").value,effort:$("cuEffort").value,src:$("cuSrc").value,title:$("cuT").value.trim(),description:$("cuD").value,business_risk:$("cuB").value,remediation:$("cuF").value,sources:$("cuSrc").value};
+    if(!v.title)return toast("Podaj tytuł");
+    if(e)Object.assign(e,v);else{const n=(d.custom||[]).length+1;const nid="X-"+String(n).padStart(3,"0");d.custom=d.custom||[];let idn=nid,k=n;while(d.custom.some(x=>x.id===idn)){k++;idn="X-"+String(k).padStart(3,"0")}
+      d.custom.push({id:idn,...v});ui.open[idn]=1;logD(d,`Dodano własne znalezisko ${idn}`)}
+    dlgC.close();save();render()};
+  $("cuCancel").onclick=()=>dlgC.close()}
+
+// ---------- import parsers ----------
+function tagText(el,name){const x=el.getElementsByTagName(name)[0];return x?x.textContent.trim():""}
+function parsePingCastle(text,file,d){const x=new DOMParser().parseFromString(text,"application/xml");if(x.getElementsByTagName("parsererror").length)throw new Error("Niepoprawny XML");
+  const rules=[...x.getElementsByTagName("HealthcheckRiskRule")];if(!rules.length&&!x.getElementsByTagName("GlobalScore").length)throw new Error("To nie wygląda na raport healthcheck PingCastle (brak RiskRules)");
+  const pcMap={};CAT.list.forEach(c=>c.pcIds.forEach(r=>{(pcMap[r.toLowerCase()]=pcMap[r.toLowerCase()]||[]).push(c.id)}));
+  const items=[];rules.forEach(r=>{const id=tagText(r,"RiskId");const ctls=pcMap[id.toLowerCase()]||[null];const pts=tagText(r,"Points");
+    ctls.forEach(ct=>items.push({key:id,text:tagText(r,"Rationale"),points:pts===""?null:+pts,ctl:ct,cat:tagText(r,"Category")}))});
+  const sc={global:tagText(x,"GlobalScore"),stale:tagText(x,"StaleObjectsScore"),priv:tagText(x,"PrivilegiedGroupScore")||tagText(x,"PrivilegedGroupScore"),trust:tagText(x,"TrustScore"),anomaly:tagText(x,"AnomalyScore")};
+  return {dom:d.id,tool:"PingCastle",file,domain:tagText(x,"DomainFQDN"),scores:sc,items,found:new Set(items.map(i=>i.key.toLowerCase()))}}
+function parseCertipy(text,file,d){const j=JSON.parse(text);const items=[];
+  const walk=(o,parentName)=>{if(!o||typeof o!=="object")return;const name=o["Template Name"]||o["CA Name"]||o["Name"]||parentName;
+    Object.keys(o).forEach(k=>{const v=o[k];if(/vulnerabilit/i.test(k)&&v&&typeof v==="object"&&!Array.isArray(v)){Object.keys(v).forEach(e=>{const m=e.match(/ESC\d+/i);if(m){const esc_=m[0].toUpperCase();
+        items.push({key:esc_,text:`${o["Template Name"]?"Szablon":o["CA Name"]?"CA":"Obiekt"}: ${name||"?"} – ${String(v[e]).slice(0,300)}`,obj:name,ctl:ESCMAP[esc_]||null,points:null})}})}
+      else if(v&&typeof v==="object")walk(v,name)})};
+  walk(j,null);if(!items.length&&!/Certificate (Templates|Authorities)/.test(text))throw new Error("Nie znaleziono sekcji Certipy (Certificate Authorities/Templates)");
+  return {dom:d.id,tool:"Certipy",file,domain:"",scores:null,items,found:new Set(items.map(i=>i.key))}}
+function applyImport(d){const im=ui.imp;const $=id=>document.getElementById(id);const setFail=$("impFail").checked,over=$("impOverwrite").checked,addOk=$("impOk").checked;
+  let nFail=0,nOk=0,nCu=0;const by={};im.items.forEach(i=>{if(i.ctl)(by[i.ctl]=by[i.ctl]||[]).push(i)});
+  if(setFail)Object.entries(by).forEach(([cid,list])=>{if(!CAT.map[cid])return;const s=ctlState(d,cid);if(s.status&&!over)return;s.status="fail";s.updated=now();
+    const ev=list.map(i=>`[${im.tool}] ${i.key}${i.points!=null?` (${i.points} pkt)`:""}: ${i.text}`).join("\n");s.evidence=(s.evidence?s.evidence+"\n":"")+ev;
+    if(im.tool==="Certipy"){const objs=[...new Set(list.map(i=>i.obj).filter(Boolean))].join(", ");if(objs)s.objects=(s.objects?s.objects+", ":"")+objs}
+    s.source=`${im.tool} ${im.file} (${today()})`;const c=CAT.map[cid];const p=prioOf(c,s);if(!s.deadline&&p)s.deadline=addDays(d.assessDate,PRIO_DAYS[p]);nFail++});
+  if(addOk)CAT.list.forEach(c=>{const keys=im.tool==="PingCastle"?c.pcIds.map(x=>x.toLowerCase()):c.escIds.map(x=>x.toUpperCase());if(!keys.length)return;
+    if(im.tool==="Certipy"&&!c.escIds.length)return;const s=d.ctl[c.id]||{};if(s.status)return;if(keys.some(k=>im.found.has(k)))return;
+    const st=ctlState(d,c.id);st.status="ok";st.updated=now();st.evidence=(st.evidence?st.evidence+"\n":"")+`[${im.tool}] brak wyników dla: ${keys.join(", ")}`;st.source=`${im.tool} ${im.file} (${today()})`;nOk++});
+  if(im.tool==="PingCastle"&&$("impCustom").checked){d.custom=d.custom||[];im.items.filter(i=>!i.ctl).forEach(i=>{if(d.custom.some(c=>c.src===`PingCastle ${i.key}`))return;
+      let k=d.custom.length+1,idn;do{idn="X-"+String(k++).padStart(3,"0")}while(d.custom.some(x=>x.id===idn));
+      const risk=i.points>=40?"Krytyczne":i.points>=15?"Wysokie":i.points>=5?"Średnie":"Niskie";
+      d.custom.push({id:idn,area:"Inne",risk,effort:"Średni",src:`PingCastle ${i.key}`,sources:`PingCastle ${i.key}`,title:`${i.key}: ${i.text.slice(0,90)}`,description:i.text,business_risk:"",remediation:"Zobacz opis reguły i zalecenia w raporcie HTML PingCastle."});
+      const s=ctlState(d,idn);s.status="fail";s.evidence=`[PingCastle] ${i.key}${i.points!=null?` (${i.points} pkt)`:""}: ${i.text}`;s.source=`PingCastle ${im.file}`;s.updated=now();nCu++})}
+  if(im.tool==="PingCastle"&&$("impScores").checked&&im.scores)Object.entries(im.scores).forEach(([k,v])=>{if(v!=="")d.pc[k]=v});
+  const sum=`niezgodne: ${nFail}, zgodne: ${nOk}, własne: ${nCu}`;d.imports=d.imports||[];d.imports.push({ts:now(),tool:im.tool,file:im.file,summary:sum});logD(d,`Import ${im.tool} (${im.file}): ${sum}`);
+  ui.imp=null;save();render();toast("Zastosowano import – "+sum)}
+
+// ---------- settings / export / import ----------
+const dlgS=document.getElementById("dlgSettings");
+document.getElementById("btnSettings").onclick=()=>{const $=x=>document.getElementById(x);$("setLock").value=settings.lockMin;$("setAssessor").value=settings.assessor||"";$("setOrg").value=settings.org||"";
+  $("setDbInfo").textContent=`Źródło: ${catSource} · ${CAT.list.length} kontroli w ${CAT.areas.length} obszarach`;
+  $("setVaultInfo").textContent=!Vault.key?"Sejf zablokowany":Vault.mode==="fs"?`Plik: ${Vault.dir.name}/${VAULT_FILE} · kopie: ${BACKUP_DIR}/ (ostatnie ${BACKUP_KEEP})`:"Tryb ręczny (zaszyfrowana kopia w przeglądarce + „Pobierz sejf”).";
+  $("btnForget").hidden=Vault.mode!=="fs";$("btnChangePw").disabled=!Vault.key;dlgS.showModal()};
+document.getElementById("setClose").onclick=()=>dlgS.close();
+document.getElementById("setSave").onclick=()=>{settings.lockMin=Math.max(0,+document.getElementById("setLock").value||0);settings.assessor=document.getElementById("setAssessor").value;settings.org=document.getElementById("setOrg").value;LS.set(K.settings,settings);dlgS.close();render()};
+document.getElementById("btnLoadCsv").onclick=()=>document.getElementById("fileCsv").click();
+document.getElementById("fileCsv").onchange=e=>readFile(e.target,t=>{try{CAT=buildCat(parseCSV(t));catSource=e.target.files[0].name;LS.set(K.db,{name:catSource,csv:t});toast(`Wczytano ${CAT.list.length} kontroli`);dlgS.close();render()}catch(err){alert("Błąd CSV: "+err.message)}e.target.value=""});
+document.getElementById("btnDlCsv").onclick=()=>download("ad_controls.csv",toCSV(CAT.rows,Object.keys(CAT.rows[0])),"text/csv;charset=utf-8");
+document.getElementById("btnResetDb").onclick=()=>{if(!confirm("Przywrócić wbudowany katalog kontroli?"))return;try{localStorage.removeItem(K.db)}catch(e){}loadCat();dlgS.close();render()};
+document.getElementById("btnChangePw").onclick=()=>{dlgS.close();changePassword()};
+document.getElementById("btnForget").onclick=async()=>{if(!confirm("Zapomnieć folder sejfu? Plik zostanie na dysku."))return;try{await IDB.del("dir")}catch(e){}dlgS.close();vs.step=null;lockVault()};
+const dlgE=document.getElementById("dlgExport");
+document.getElementById("btnExport").onclick=()=>{if(Vault.key)dlgE.showModal()};
+document.getElementById("expClose").onclick=()=>dlgE.close();
+document.getElementById("expEnc").onclick=async()=>{await flushVault();download(`auditor-ad_export_${localInput(new Date()).replace(/[:T]/g,"-")}.vault.json`,Vault.lastText,"application/json");dlgE.close()};
+document.getElementById("expPlain").onclick=()=>{if(!confirm("Plik będzie zawierał wrażliwe dane (konta, ścieżki ataku, podatności) w czystym tekście. Kontynuować?"))return;
+  download(`auditor-ad_JAWNY_${localInput(new Date()).replace(/[:T]/g,"-")}.json`,JSON.stringify({app:APP.name,appVersion:APP.version,exported:now(),domains},null,2),"application/json");dlgE.close()};
+document.getElementById("btnImport").onclick=()=>{if(Vault.key)document.getElementById("fileJson").click()};
+document.getElementById("fileJson").onchange=e=>readFile(e.target,async t=>{try{let data;if(isVaultText(t)){const pw=await askPassword("Hasło do importowanego sejfu",["Hasło"]);if(!pw)return;data=(await decryptVault(t,pw[0])).data}else data=JSON.parse(t);
+    const inc=data.domains||[];let a=0,u=0;inc.forEach(x=>{if(!x.id||!x.ctl)return;const i=domains.findIndex(y=>y.id===x.id);if(i>=0){if(confirm(`Domena ${x.name} już istnieje – nadpisać?`)){domains[i]=x;u++}}else{domains.push(x);a++}});
+    save();render();toast(`Import: ${a} nowych, ${u} nadpisanych`)}catch(err){alert("Błąd importu: "+err.message)}e.target.value=""});
+function applyTheme(){const t=LS.get(K.theme,"");if(t)document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+document.getElementById("btnTheme").onclick=()=>{const t=LS.get(K.theme,"");const dark=t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches;LS.set(K.theme,dark?"light":"dark");applyTheme()};
+const dlgA=document.getElementById("dlgAbout");
+document.getElementById("btnAbout").onclick=()=>{document.getElementById("aboutLogo").innerHTML=document.querySelector("header h1 svg").outerHTML;document.getElementById("aboutVer").textContent="v"+APP.version;dlgA.showModal()};
+document.getElementById("aboutClose").onclick=()=>dlgA.close();
+document.getElementById("btnLock").onclick=()=>{if(Vault.key)lockVault()};
+document.getElementById("btnVaultDl").onclick=()=>downloadVault();
+
+// ---------- RAPORTY ----------
+const GRADE_TXT={A:"Dobry poziom zabezpieczeń – utrzymać i monitorować.",B:"Zadowalający poziom – pojedyncze luki do usunięcia.",C:"Istotne luki – wymagany plan naprawczy z terminami.",D:"Poważne ryzyko przejęcia domeny – potrzebne pilne działania.",E:"Krytyczny stan – wysokie prawdopodobieństwo przejęcia domeny przez atakującego.","":"Brak wystarczających danych do oceny."};
+const GCOL={A:"#1f7a45",B:"#5a9a2e",C:"#c08a00",D:"#d0621c",E:"#b3261e","":"#8a94a3"};
+const RCOL={"Krytyczne":"#b3261e","Wysokie":"#b86e00","Średnie":"#2457c5","Niskie":"#6b7280"};
+const SCOL={ok:"#1f7a45",part:"#b86e00",fail:"#b3261e",na:"#6b7280","":"#8a94a3"};
+const rEsc=s=>esc(s).replace(/\n/g,"<br>");
+function openItems(d){return planRows(d).filter(r=>r.s.plan!=="done"&&r.s.plan!=="accepted")}
+function topRisks(d,n){return openItems(d).sort((a,b)=>W[b.c.risk]-W[a.c.risk]||(a.s.status==="fail"?-1:1)-(b.s.status==="fail"?-1:1)||(a.p||"").localeCompare(b.p||"")).slice(0,n)}
+const RCSS=`body{font:12.5px/1.5 system-ui,"Segoe UI",sans-serif;color:#1b1f24;background:#fff;max-width:1050px;margin:24px auto;padding:0 18px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:15px;border-bottom:2px solid #2457c5;padding-bottom:3px;margin:26px 0 10px}h3{font-size:13.5px;margin:18px 0 6px}
+table{border-collapse:collapse;width:100%;margin:6px 0 10px}th,td{border:1px solid #d8dde4;padding:5px 7px;vertical-align:top;text-align:left}th{background:#eef0f3;font-size:11.5px}
+.sm{font-size:11px;color:#5f6b7a}.cls{display:inline-block;border:1px solid #b3261e;color:#b3261e;font-weight:700;font-size:11px;padding:2px 8px;border-radius:4px;letter-spacing:.05em}
+.grade{display:inline-flex;width:64px;height:64px;border-radius:12px;color:#fff;font-weight:800;font-size:36px;align-items:center;justify-content:center}
+.gsm{display:inline-flex;width:24px;height:24px;border-radius:6px;color:#fff;font-weight:800;font-size:13px;align-items:center;justify-content:center}
+.hero{display:flex;gap:18px;align-items:center;border:1px solid #d8dde4;border-radius:10px;padding:14px 16px;margin:14px 0}
+.kpi{display:flex;gap:10px;flex-wrap:wrap}.kpi div{border:1px solid #d8dde4;border-radius:8px;padding:8px 12px;min-width:120px}.kpi b{display:block;font-size:18px}
+.bar{height:10px;background:#eef0f3;border-radius:5px;overflow:hidden;min-width:120px}.bar i{display:block;height:100%}
+.rb{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:8px;color:#fff;white-space:nowrap}
+.find{border:1px solid #d8dde4;border-left:5px solid #b3261e;border-radius:6px;padding:8px 12px;margin:10px 0;break-inside:avoid}
+.find .h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.lbl{font-size:10.5px;text-transform:uppercase;color:#5f6b7a;font-weight:700;margin-top:6px;letter-spacing:.04em}
+.fix{font:11.5px/1.45 ui-monospace,Consolas,monospace;background:#f3f4f7;border:1px solid #d8dde4;border-radius:5px;padding:6px 8px;white-space:pre-wrap}
+.pill{display:inline-block;font-size:10.5px;background:#eef0f3;border-radius:4px;padding:0 5px;margin:1px 3px 1px 0}
+.hz{border:1px solid #d8dde4;border-radius:8px;padding:8px 12px;margin:8px 0;break-inside:avoid}.hz h4{margin:0 0 6px}
+.foot{margin-top:28px;font-size:11px;color:#5f6b7a;border-top:1px solid #d8dde4;padding-top:6px}
+@media print{body{margin:0;max-width:none}h2,h3{break-after:avoid}tr,.find,.hz{break-inside:avoid}.noprint{display:none}.pb{break-before:page}}`;
+const rb=r=>`<span class="rb" style="background:${RCOL[r]||"#666"}">${esc(r)}</span>`;
+const bar=p=>`<div class="bar"><i style="width:${p||0}%;background:${p==null?"#8a94a3":p>=90?"#1f7a45":p>=60?"#c08a00":"#b3261e"}"></i></div>`;
+function head(title,sub){const cls=document.getElementById("rpClass").value;return `<div class="noprint" style="text-align:right"><button onclick="print()">Drukuj / zapisz PDF</button></div>
+  <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><div class="sm">${esc(settings.org||"")}</div><h1>${esc(title)}</h1><div class="sm">${sub}</div></div>${cls?`<span class="cls">${esc(cls)}</span>`:""}</div>`}
+function wrap(title,body){return `<!DOCTYPE html><html lang="pl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${RCSS}</style></head><body>${body}
+  <div class="foot">Wygenerowano ${fmt(now())} · ${APP.name} ${APP.version} · katalog: ${esc(catSource)} (${CAT.list.length} kontroli). Ocena A–E: zgodność ważona ryzykiem (Krytyczne×10, Wysokie×5, Średnie×2, Niskie×1; Zgodne=1, Częściowo=0,5, Niezgodne=0); niezgodność krytyczna ogranicza ocenę do maks. C.</div></body></html>`}
+
+function mgmtDomain(d,withNames,compact){const s=stats(d);const acc=s.accs;const accBy={};RISKS.forEach(r=>accBy[r]=acc.filter(a=>a.risk===r&&a.status!=="fixed"&&a.status!=="accepted").length);
+  const tagCnt={};acc.forEach(a=>a.tags.forEach(t=>tagCnt[t]=(tagCnt[t]||0)+1));
+  const hz={P1:[],P2:[],P3:[],P4:[]};planRows(d).forEach(r=>{if(r.p)hz[r.p].push(r)});
+  const accepted=planRows(d).filter(r=>r.s.plan==="accepted");const decisions=openItems(d).filter(r=>r.c.effort==="Wysoki");
+  let h=`<div class="hero"><div class="grade" style="background:${GCOL[s.grade]}">${s.grade||"–"}</div><div><div style="font-size:16px;font-weight:700">${esc(GRADE_TXT[s.grade])}</div>
+    <div>Zgodność ważona ryzykiem: <b>${s.pct==null?"–":s.pct+"%"}</b> · oceniono ${s.assessed} z ${s.tot} kontroli (${s.cov}%)${s.cov<70?' – <b style="color:#b86e00">ocena niepełna</b>':""}</div>
+    <div class="sm">Data oceny: ${esc(fmtD(d.assessDate))} · oceniający: ${esc(d.assessor||"—")}</div></div></div>`;
+  if(d.summary)h+=`<h2>Podsumowanie</h2><div>${rEsc(d.summary)}</div>`;
+  h+=`<h2>Kluczowe wskaźniki</h2><div class="kpi"><div><b style="color:#b3261e">${s.openBy.Krytyczne}</b>otwarte ryzyka krytyczne</div><div><b style="color:#b86e00">${s.openBy.Wysokie}</b>otwarte ryzyka wysokie</div>
+    <div><b>${s.accOpen.length}</b>niebezpieczne konta${accBy.Krytyczne?` (${accBy.Krytyczne} krytycznych)`:""}</div>
+    <div><b>${s.plan.length?Math.round(s.planDone/s.plan.length*100)+"%":"–"}</b>planu naprawczego wdrożone</div>
+    ${d.pc.global!==""?`<div><b>${esc(d.pc.global)}</b>PingCastle (0 = najlepiej)</div>`:""}
+    ${d.bh.usersPct!==""?`<div><b>${esc(d.bh.usersPct)}%</b>użytkowników ze ścieżką do administratora domeny</div>`:""}</div>`;
+  if(d.bh.usersPct!=="")h+=`<div class="sm">Ścieżka do administratora domeny oznacza, że przejęcie konta takiego użytkownika (np. przez phishing) może prowadzić do przejęcia całej domeny.</div>`;
+  h+=`<h2>Stan zabezpieczeń według obszarów</h2><table><thead><tr><th>Obszar</th><th style="width:170px">Zgodność</th><th>%</th><th>Niezgodne</th><th>Częściowo</th><th>Nieocenione</th></tr></thead><tbody>
+    ${Object.entries(s.byArea).map(([a,x])=>`<tr><td>${esc(a)}</td><td>${bar(x.pct)}</td><td><b>${x.pct==null?"–":x.pct+"%"}</b></td><td>${x.fail||0}${x.crit?` <span class="sm">(${x.crit} kryt.)</span>`:""}</td><td>${x.part||0}</td><td>${x.un||0}</td></tr>`).join("")}</tbody></table>`;
+  const tr=topRisks(d,compact?5:10);
+  if(tr.length)h+=`<h2>Najważniejsze ryzyka</h2><table><thead><tr><th>Ryzyko</th><th>Co może się stać</th><th>Priorytet</th><th>Właściciel</th><th>Termin</th></tr></thead><tbody>
+    ${tr.map(r=>`<tr><td>${rb(r.c.risk)}<br><b>${esc(r.c.title)}</b><div class="sm">${esc(r.c.id)} · ${ST[r.s.status]}</div></td><td>${rEsc(r.c.business_risk||r.c.description||"")}</td><td>${esc(r.p||"")}</td><td>${esc(r.s.owner||"—")}</td><td>${esc(r.s.deadline||"—")}</td></tr>`).join("")}</tbody></table>`;
+  if(compact)return h;
+  h+=`<h2>Plan naprawczy – harmonogram</h2>`;
+  Object.entries(PRIO).forEach(([k,v])=>{const l=hz[k];if(!l.length)return;const done=l.filter(r=>r.s.plan==="done").length;
+    h+=`<div class="hz"><h4>${v} <span class="sm">· ${l.length} działań, wdrożone ${done}</span></h4><table><thead><tr><th>Działanie</th><th>Ryzyko</th><th>Właściciel</th><th>Termin</th><th>Status</th></tr></thead><tbody>
+      ${l.map(r=>`<tr><td>${esc(r.c.title)} <span class="sm">${esc(r.c.id)}</span></td><td>${rb(r.c.risk)}</td><td>${esc(r.s.owner||"—")}</td><td>${esc(r.s.deadline||"—")}</td><td>${esc(PLAN[r.s.plan||""])}</td></tr>`).join("")}</tbody></table></div>`});
+  if(decisions.length)h+=`<h2>Działania wymagające decyzji lub zasobów</h2><div class="sm">Działania o wysokim nakładzie wdrożenia (projekty, budżet, zmiany w aplikacjach).</div><ul>${decisions.map(r=>`<li><b>${esc(r.c.title)}</b> (${esc(r.c.risk)}, ${esc(r.p||"")})${r.c.impact?` – ${esc(r.c.impact)}`:""}</li>`).join("")}</ul>`;
+  if(accepted.length)h+=`<h2>Zaakceptowane ryzyka</h2><table><thead><tr><th>Ryzyko</th><th>Uzasadnienie / akceptujący</th></tr></thead><tbody>${accepted.map(r=>`<tr><td>${rb(r.c.risk)} ${esc(r.c.title)}</td><td>${rEsc(r.s.accept||"—")}</td></tr>`).join("")}</tbody></table>`;
+  if(acc.length){h+=`<h2>Niebezpieczne konta</h2><div class="kpi">${RISKS.map(r=>`<div><b style="color:${RCOL[r]}">${accBy[r]}</b>${r.toLowerCase()} (otwarte)</div>`).join("")}<div><b>${acc.filter(a=>a.status==="fixed").length}</b>naprawione</div></div>
+    <div style="margin-top:6px">Najczęstsze przyczyny: ${Object.entries(tagCnt).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([t,n])=>`<span class="pill">${esc(t)}: ${n}</span>`).join("")}</div>`;
+    if(withNames)h+=`<table><thead><tr><th>Konto</th><th>Ryzyko</th><th>Działanie</th><th>Status</th><th>Termin</th></tr></thead><tbody>${acc.filter(a=>a.status!=="fixed").map(a=>`<tr><td>${esc(a.name)}</td><td>${rb(a.risk)}</td><td>${esc(a.action)}</td><td>${esc(ACC_ST[a.status])}</td><td>${esc(a.deadline||"—")}</td></tr>`).join("")}</tbody></table>`}
+  h+=`<h2>Metodyka</h2><div class="sm">Ocena ${s.tot} kontroli w obszarach: ${esc(Object.keys(s.byArea).join(", "))}. Dane z narzędzi PingCastle, BloodHound i Certipy oraz weryfikacji konfiguracji. ${d.scope?"Zakres: "+esc(d.scope):""}</div>`;
+  return h}
+function techDomain(d,withOk){const s=stats(d);const cs=controlsOf(d);
+  let h=`<h2>Dane domeny i zakres</h2><table><tbody>${[["Domena",d.name],["Las",d.forest],["NetBIOS",d.netbios],["Poziom funkcjonalny",d.fl],["Liczba DC",d.dcCount],["Data oceny",fmtD(d.assessDate)],["Oceniający",d.assessor],["Zakres",d.scope]]
+    .filter(x=>x[1]).map(([k,v])=>`<tr><th style="width:180px">${k}</th><td>${rEsc(v)}</td></tr>`).join("")}
+    <tr><th>PingCastle</th><td>Global ${esc(d.pc.global||"–")} · Stale ${esc(d.pc.stale||"–")} · Privileged ${esc(d.pc.priv||"–")} · Trusts ${esc(d.pc.trust||"–")} · Anomalies ${esc(d.pc.anomaly||"–")}</td></tr>
+    <tr><th>BloodHound</th><td>Użytkownicy ze ścieżką do DA: ${esc(d.bh.usersPct||"–")}% · komputery: ${esc(d.bh.compPct||"–")}% · obiekty Tier Zero: ${esc(d.bh.t0||"–")}${d.bh.notes?"<br>"+rEsc(d.bh.notes):""}</td></tr>
+    <tr><th>Wynik</th><td>Ocena <b>${s.grade||"–"}</b> · zgodność ${s.pct==null?"–":s.pct+"%"} · oceniono ${s.assessed}/${s.tot}</td></tr></tbody></table>`;
+  h+=`<h2>Zestawienie</h2><table><thead><tr><th>Ryzyko</th><th>Niezgodne</th><th>Częściowo</th><th>Zgodne</th><th>N/D</th><th>Nieocenione</th></tr></thead><tbody>
+    ${RISKS.map(r=>{const x=cs.filter(c=>c.risk===r);const n=st=>x.filter(c=>((d.ctl[c.id]||{}).status||"")===st).length;return `<tr><td>${rb(r)}</td><td>${n("fail")}</td><td>${n("part")}</td><td>${n("ok")}</td><td>${n("na")}</td><td>${n("")}</td></tr>`}).join("")}</tbody></table>`;
+  const rows=planRows(d);
+  h+=`<h2>Znaleziska i sposób naprawy (${rows.length})</h2>`;
+  rows.forEach(({c,s:st,p})=>{h+=`<div class="find" style="border-left-color:${RCOL[c.risk]}"><div class="h"><div><b>${esc(c.id)} · ${esc(c.title)}</b></div><div>${rb(c.risk)} <span class="pill" style="color:${SCOL[st.status]}">${ST[st.status]}</span> <span class="pill">${esc(p||"")}</span> <span class="pill">${esc(PLAN[st.plan||""])}</span></div></div>
+    <div class="sm">Właściciel: ${esc(st.owner||"—")} · termin: ${esc(st.deadline||"—")} · nakład: ${esc(c.effort||"—")}${c.mitre?" · MITRE: "+esc(c.mitre):""}</div>
+    ${c.description?`<div class="lbl">Opis</div><div>${rEsc(c.description)}</div>`:""}
+    ${st.evidence?`<div class="lbl">Ustalenia</div><div>${rEsc(st.evidence)}</div>`:""}
+    ${st.objects?`<div class="lbl">Obiekty</div><div>${rEsc(st.objects)}</div>`:""}
+    ${c.check?`<div class="lbl">Jak zweryfikować</div><div class="fix">${esc(c.check)}</div>`:""}
+    <div class="lbl">Jak naprawić / skonfigurować</div><div class="fix">${esc(c.remediation||"—")}</div>
+    ${st.notes?`<div class="lbl">Konfiguracja dla tej domeny</div><div>${rEsc(st.notes)}</div>`:""}
+    ${c.impact?`<div class="lbl">Wpływ wdrożenia</div><div>${rEsc(c.impact)}</div>`:""}
+    ${st.accept?`<div class="lbl">Akceptacja / uzasadnienie</div><div>${rEsc(st.accept)}</div>`:""}</div>`});
+  const acc=[...d.accounts].sort((a,b)=>RISKS.indexOf(a.risk)-RISKS.indexOf(b.risk));
+  if(acc.length)h+=`<h2>Niebezpieczne konta (${acc.length})</h2><table><thead><tr><th>Konto</th><th>Typ</th><th>Ryzyko</th><th>Powody</th><th>Działanie</th><th>Właściciel</th><th>Status</th><th>Termin</th></tr></thead><tbody>
+    ${acc.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.note?`<div class="sm">${rEsc(a.note)}</div>`:""}</td><td>${esc(a.type)}</td><td>${rb(a.risk)}</td><td>${a.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</td><td>${rEsc(a.action)}</td><td>${esc(a.owner)}</td><td>${esc(ACC_ST[a.status])}</td><td>${esc(a.deadline)}</td></tr>`).join("")}</tbody></table>`;
+  const na=cs.filter(c=>(d.ctl[c.id]||{}).status==="na");if(na.length)h+=`<h2>Kontrole nie dotyczące (N/D)</h2><table><tbody>${na.map(c=>`<tr><td style="width:80px">${esc(c.id)}</td><td>${esc(c.title)}</td><td>${rEsc((d.ctl[c.id]||{}).accept||"—")}</td></tr>`).join("")}</tbody></table>`;
+  const un=cs.filter(c=>!(d.ctl[c.id]||{}).status);if(un.length)h+=`<h2>Kontrole nieocenione (${un.length})</h2><div class="sm">Luki w ocenie – do weryfikacji w kolejnym przeglądzie.</div><div>${un.map(c=>`<span class="pill">${esc(c.id)} ${esc(c.title)}</span>`).join("")}</div>`;
+  if(withOk){const ok=cs.filter(c=>(d.ctl[c.id]||{}).status==="ok");if(ok.length)h+=`<h2>Kontrole zgodne (${ok.length})</h2><table><tbody>${ok.map(c=>`<tr><td style="width:80px">${esc(c.id)}</td><td>${esc(c.title)}</td><td class="sm">${rEsc((d.ctl[c.id]||{}).evidence||"")}</td></tr>`).join("")}</tbody></table>`}
+  return h}
+function mgmtAll(withNames){const ss=domains.map(d=>stats(d));
+  let h=head("Ocena bezpieczeństwa Active Directory – zestawienie domen",`${domains.length} domen · ${fmt(now())}`);
+  h+=`<h2>Porównanie domen</h2><table><thead><tr><th>Domena</th><th>Ocena</th><th>Zgodność</th><th>Pokrycie</th><th>Otwarte kryt./wys.</th><th>PingCastle</th><th>Ścieżka do DA</th><th>Niebezp. konta</th></tr></thead><tbody>
+    ${domains.map((d,i)=>{const s=ss[i];return `<tr><td><b>${esc(d.name)}</b></td><td><span class="gsm" style="background:${GCOL[s.grade]}">${s.grade||"–"}</span></td><td>${s.pct==null?"–":s.pct+"%"}</td><td>${s.cov}%</td><td>${s.openBy.Krytyczne} / ${s.openBy.Wysokie}</td><td>${esc(d.pc.global||"–")}</td><td>${d.bh.usersPct!==""?esc(d.bh.usersPct)+"%":"–"}</td><td>${s.accOpen.length}</td></tr>`}).join("")}</tbody></table>`;
+  const common=CAT.list.map(c=>({c,ds:domains.filter(d=>{const s=(d.ctl[c.id]||{}).status;return s==="fail"||s==="part"})})).filter(x=>x.ds.length>=2).sort((a,b)=>W[b.c.risk]-W[a.c.risk]||b.ds.length-a.ds.length);
+  if(common.length)h+=`<h2>Problemy wspólne dla wielu domen</h2><div class="sm">Dobre kandydatki do jednego, wspólnego projektu naprawczego.</div><table><thead><tr><th>Ryzyko</th><th>Problem</th><th>Domeny</th></tr></thead><tbody>
+    ${common.slice(0,15).map(x=>`<tr><td>${rb(x.c.risk)}</td><td><b>${esc(x.c.title)}</b><div class="sm">${esc(x.c.business_risk||"")}</div></td><td>${x.ds.map(d=>esc(d.name)).join(", ")}</td></tr>`).join("")}</tbody></table>`;
+  domains.forEach(d=>{h+=`<div class="pb"></div><h2 style="font-size:17px">Domena ${esc(d.name)}</h2>`+mgmtDomain(d,withNames,true)});
+  return wrap("Ocena AD – zestawienie",h)}
+function reportHtml(){const sel=document.getElementById("rpDom").value,type=document.getElementById("rpType").value;
+  const okList=document.getElementById("rpOk").checked,names=document.getElementById("rpAccNames").checked;
+  if(sel==="__all"){if(type==="mgmt")return mgmtAll(names);
+    let h=head("Ocena bezpieczeństwa Active Directory – raport techniczny (wszystkie domeny)",fmt(now()));domains.forEach((d,i)=>{h+=`${i?'<div class="pb"></div>':""}<h2 style="font-size:17px">Domena ${esc(d.name)}</h2>`+techDomain(d,okList)});return wrap("Ocena AD – techniczny",h)}
+  const d=domains.find(x=>x.id===sel);
+  if(type==="mgmt")return wrap(`Ocena AD – ${d.name}`,head(`Ocena bezpieczeństwa Active Directory – ${d.name}`,`Raport dla kierownictwa · ${esc(fmtD(d.assessDate))}`)+mgmtDomain(d,names,false));
+  return wrap(`Ocena AD (techniczny) – ${d.name}`,head(`Ocena bezpieczeństwa Active Directory – ${d.name}`,`Raport techniczny dla administratorów · ${esc(fmtD(d.assessDate))}`)+techDomain(d,okList))}
+function reportMd(){const sel=document.getElementById("rpDom").value,type=document.getElementById("rpType").value;const ds=sel==="__all"?domains:[domains.find(x=>x.id===sel)];
+  const cell=v=>String(v||"").replace(/\|/g,"\\|").replace(/\r?\n/g,"<br>");let md=`# Ocena bezpieczeństwa Active Directory${sel==="__all"?"":" – "+ds[0].name}\n\n_${type==="mgmt"?"Raport dla kierownictwa":"Raport techniczny"} · ${fmt(now())} · ${document.getElementById("rpClass").value}_\n`;
+  ds.forEach(d=>{const s=stats(d);md+=`\n## ${d.name}\n\n**Ocena: ${s.grade||"–"}** (${GRADE_TXT[s.grade]}) · zgodność ${s.pct==null?"–":s.pct+"%"} · oceniono ${s.assessed}/${s.tot}\n`;
+    if(type==="mgmt"){if(d.summary)md+=`\n${d.summary}\n`;md+=`\n### Najważniejsze ryzyka\n\n| Ryzyko | Problem | Skutek | Priorytet | Właściciel | Termin |\n|---|---|---|---|---|---|\n`;
+      topRisks(d,10).forEach(r=>md+=`| ${r.c.risk} | ${cell(r.c.title)} | ${cell(r.c.business_risk)} | ${r.p} | ${cell(r.s.owner)} | ${r.s.deadline||""} |\n`);
+      md+=`\n### Obszary\n\n| Obszar | Zgodność | Niezgodne |\n|---|---|---|\n`;Object.entries(s.byArea).forEach(([a,x])=>md+=`| ${a} | ${x.pct==null?"–":x.pct+"%"} | ${x.fail||0} |\n`);
+      md+=`\nNiebezpieczne konta (otwarte): ${s.accOpen.length}\n`}
+    else{planRows(d).forEach(({c,s:st,p})=>{md+=`\n### ${c.id} · ${c.title}\n\n**${c.risk}** · ${ST[st.status]} · ${p} · ${PLAN[st.plan||""]} · właściciel: ${st.owner||"—"} · termin: ${st.deadline||"—"}\n\n`;
+        if(st.evidence)md+=`**Ustalenia:** ${st.evidence}\n\n`;if(st.objects)md+=`**Obiekty:** ${st.objects}\n\n`;md+=`**Jak naprawić:**\n\n\`\`\`\n${c.remediation||""}\n\`\`\`\n`;if(st.notes)md+=`\n**Konfiguracja dla tej domeny:** ${st.notes}\n`});
+      if(d.accounts.length){md+=`\n### Niebezpieczne konta\n\n| Konto | Ryzyko | Powody | Działanie | Status |\n|---|---|---|---|---|\n`;d.accounts.forEach(a=>md+=`| ${cell(a.name)} | ${a.risk} | ${cell(a.tags.join(", "))} | ${cell(a.action)} | ${ACC_ST[a.status]} |\n`)}}});
+  return md}
+const dlgR=document.getElementById("dlgReport");
+document.getElementById("btnReport").onclick=()=>{if(!Vault.key||!domains.length)return toast("Brak danych do raportu");
+  document.getElementById("rpDom").innerHTML=domains.map(d=>`<option value="${d.id}" ${d.id===activeId?"selected":""}>${esc(d.name)}</option>`).join("")+(domains.length>1?`<option value="__all">Wszystkie domeny (zestawienie)</option>`:"");dlgR.showModal()};
+document.getElementById("rpClose").onclick=()=>dlgR.close();
+const rpName=ext=>{const sel=document.getElementById("rpDom").value;const n=sel==="__all"?"wszystkie":(domains.find(x=>x.id===sel)||{}).name;return `raport_AD_${document.getElementById("rpType").value==="mgmt"?"zarzadczy":"techniczny"}_${String(n).replace(/[^\w.-]+/g,"_")}_${today()}.${ext}`};
+document.getElementById("rpOpen").onclick=()=>{const w=window.open("","_blank");const h=reportHtml();if(!w){download(rpName("html"),h,"text/html");return}w.document.open();w.document.write(h);w.document.close()};
+document.getElementById("rpHtml").onclick=()=>download(rpName("html"),reportHtml(),"text/html;charset=utf-8");
+document.getElementById("rpMd").onclick=()=>download(rpName("md"),reportMd(),"text/markdown;charset=utf-8");
+document.getElementById("rpCsv").onclick=()=>{const sel=document.getElementById("rpDom").value;const ds=sel==="__all"?domains:[domains.find(x=>x.id===sel)];const rows=[];
+  ds.forEach(d=>planRows(d).forEach(({c,s,p})=>rows.push({domena:d.name,id:c.id,kontrola:c.title,obszar:c.area,ryzyko:c.risk,status:ST[s.status],priorytet:p,wlasciciel:s.owner,termin:s.deadline,status_planu:PLAN[s.plan||""],naklad:c.effort,ustalenia:s.evidence,obiekty:s.objects,naprawa:c.remediation,konfiguracja:s.notes})));
+  download(rpName("csv").replace("raport_","plan_"),toCSV(rows,["domena","id","kontrola","obszar","ryzyko","status","priorytet","wlasciciel","termin","status_planu","naklad","ustalenia","obiekty","naprawa","konfiguracja"]),"text/csv;charset=utf-8")};
+
+// ---------- SEJF: zaszyfrowany plik JSON ----------
+const VAULT_FILE="auditor-ad.vault.json",LEGACY_VAULT_FILE="ad_assessment.vault.json",VAULT_FORMAT="auditor-ad-vault",VAULT_FORMATS=["auditor-ad-vault","adsec-vault"],BACKUP_DIR="backups",BACKUP_KEEP=10,BACKUP_EVERY_MS=60*60*1000,KDF_ITER=600000,PW_MIN=12;
+const FS_OK=!!window.showDirectoryPicker;
+const Vault={mode:null,dir:null,key:null,salt:null,iter:KDF_ITER,dirty:false,timer:null,saving:null,lastSaved:null,lastBackup:0,lastText:null,err:null,downloaded:null};
+const TAB_ID=Math.random().toString(36).slice(2);
+let bc=null;try{bc=new BroadcastChannel("adsec");bc.onmessage=e=>{if(e.data&&e.data.t==="open"&&e.data.id!==TAB_ID&&Vault.key){lockVault("Sejf otwarto w innej karcie – ta karta została zablokowana, aby nie nadpisać danych.")}}}catch(e){}
+
+function b64(buf){const b=new Uint8Array(buf);let s="";for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s)}
+function unb64(s){const bin=atob(s);const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return b}
+async function deriveKey(pw,salt,iter){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",hash:"SHA-256",salt,iterations:iter},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function encryptPayload(obj,key,salt,iter){const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(JSON.stringify(obj)));
+  return JSON.stringify({format:VAULT_FORMAT,v:1,cipher:"AES-256-GCM",kdf:{name:"PBKDF2",hash:"SHA-256",iter,salt:b64(salt)},iv:b64(iv),ct:b64(ct)})}
+function isVaultText(t){try{return VAULT_FORMATS.includes(JSON.parse(t).format)}catch(e){return false}}
+async function decryptVault(text,pw){let f;try{f=JSON.parse(text)}catch(e){throw new Error("Plik nie jest prawidłowym sejfem")}
+  if(!VAULT_FORMATS.includes(f.format))throw new Error("Plik nie jest sejfem AuDitor-AD");
+  const salt=unb64(f.kdf.salt),iter=f.kdf.iter;const key=await deriveKey(pw,salt,iter);let pt;
+  try{pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(f.iv)},key,unb64(f.ct))}catch(e){throw new Error("Nieprawidłowe hasło lub uszkodzony plik")}
+  return {data:JSON.parse(new TextDecoder().decode(pt)),key,salt,iter}}
+const vaultPayload=()=>({app:APP.name,appVersion:APP.version,version:3,saved:now(),domains});
+
+// IndexedDB – zapamiętanie uchwytu folderu (sam uchwyt, bez danych)
+const IDB={open(){return new Promise((res,rej)=>{const r=indexedDB.open("adsec",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})},
+  async get(k){const d=await this.open();return new Promise((res,rej)=>{const r=d.transaction("kv").objectStore("kv").get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})},
+  async set(k,v){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})},
+  async del(k){const d=await this.open();return new Promise((res,rej)=>{const t=d.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
+async function readFileIn(dir,name){try{const fh=await dir.getFileHandle(name);return await (await fh.getFile()).text()}catch(e){if(e.name==="NotFoundError")return null;throw e}}
+// sejf: nowa nazwa pliku, z odczytem pliku z poprzedniej wersji (AD Security Assessment)
+async function readVaultIn(dir){const t=await readFileIn(dir,VAULT_FILE);if(t)return {text:t,name:VAULT_FILE,legacy:false};
+  const o=await readFileIn(dir,LEGACY_VAULT_FILE);return o?{text:o,name:LEGACY_VAULT_FILE,legacy:true}:null}
+async function writeFileIn(dir,name,text){const fh=await dir.getFileHandle(name,{create:true});const w=await fh.createWritable();await w.write(text);await w.close()}
+async function ensurePerm(dir,ask){const o={mode:"readwrite"};if(await dir.queryPermission(o)==="granted")return true;return ask?(await dir.requestPermission(o))==="granted":false}
+
+// zapis
+const save=()=>{if(!Vault.key)return;Vault.dirty=true;updVaultStatus();clearTimeout(Vault.timer);Vault.timer=setTimeout(flushVault,400)};
+async function flushVault(){if(!Vault.key)return;clearTimeout(Vault.timer);
+  if(Vault.saving){await Vault.saving;if(!Vault.dirty)return}
+  Vault.saving=(async()=>{try{Vault.dirty=false;const text=await encryptPayload(vaultPayload(),Vault.key,Vault.salt,Vault.iter);Vault.lastText=text;
+      if(Vault.mode==="fs"){await writeFileIn(Vault.dir,VAULT_FILE,text);await maybeBackup(text)}
+      else{try{localStorage.setItem(K.vaultCache,text)}catch(e){throw new Error("Brak miejsca w pamięci przeglądarki – pobierz plik sejfu")}}
+      Vault.lastSaved=new Date();Vault.err=null}
+    catch(e){Vault.dirty=true;Vault.err=e.message||String(e);toast("Błąd zapisu sejfu: "+Vault.err)}
+    finally{Vault.saving=null;updVaultStatus()}})();
+  return Vault.saving}
+async function maybeBackup(text,force){if(!force&&Date.now()-Vault.lastBackup<BACKUP_EVERY_MS)return;
+  const bd=await Vault.dir.getDirectoryHandle(BACKUP_DIR,{create:true});const d=new Date();
+  const name=`auditor-ad_${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}.vault.json`;
+  await writeFileIn(bd,name,text);Vault.lastBackup=Date.now();
+  const names=[];for await(const [n,h] of bd.entries())if(h.kind==="file"&&/^auditor-ad_\d{8}-\d{6}\.vault\.json$/.test(n))names.push(n);
+  names.sort().reverse().slice(BACKUP_KEEP).forEach(n=>bd.removeEntry(n).catch(()=>{}))}
+function updVaultStatus(){const el=document.getElementById("vaultStatus");if(!el)return;
+  if(!Vault.key){el.textContent="🔒 zablokowany";el.style.color="";return}
+  const where=Vault.mode==="fs"?`${Vault.dir.name}/${VAULT_FILE}`:"kopia w przeglądarce";
+  let st=Vault.err?"⚠ błąd zapisu":Vault.saving||Vault.dirty?"zapisywanie…":Vault.lastSaved?"zapisano "+p2(Vault.lastSaved.getHours())+":"+p2(Vault.lastSaved.getMinutes()):"";
+  if(Vault.mode==="manual")st+=Vault.downloaded?` · plik pobrany ${p2(Vault.downloaded.getHours())}:${p2(Vault.downloaded.getMinutes())}`:" · plik niepobrany";
+  el.textContent=`🔓 ${where} · ${st}`;el.title=Vault.err||"";el.style.color=Vault.err?"var(--bad)":"";
+  const d=document.getElementById("btnVaultDl");if(d)d.hidden=Vault.mode!=="manual"}
+
+// odblokowanie / blokada
+async function unlocked(res,mode,dir){Vault.key=res.key;Vault.salt=res.salt;Vault.iter=res.iter;Vault.mode=mode;Vault.dir=dir||null;Vault.err=null;Vault.lastBackup=0;
+  domains=(res.data&&res.data.domains)||[];if(!domains.find(c=>c.id===activeId))activeId=domains[0]?domains[0].id:null;
+  if(mode==="fs"){try{await IDB.set("dir",dir)}catch(e){}}
+  try{bc&&bc.postMessage({t:"open",id:TAB_ID})}catch(e){}
+  document.getElementById("vaultScreen").hidden=true;lastActivity=Date.now();
+  if(mode==="fs")await flushVault().then(()=>maybeBackup(Vault.lastText,true)).catch(()=>{});
+  render();updVaultStatus()}
+async function lockVault(msg){if(Vault.key&&(Vault.dirty||Vault.saving))await flushVault();
+  Vault.key=null;Vault.salt=null;Vault.lastText=null;domains=[];document.getElementById("main").innerHTML="";
+  document.querySelectorAll("dialog[open]").forEach(d=>d.close());renderSidebar();updVaultStatus();showVault(msg)}
+let lastActivity=Date.now();
+["mousemove","keydown","click","scroll"].forEach(ev=>addEventListener(ev,()=>{lastActivity=Date.now()},{passive:true}));
+setInterval(()=>{const m=+settings.lockMin||0;if(Vault.key&&m>0&&Date.now()-lastActivity>m*60000)lockVault(`Sejf zablokowano po ${m} min bezczynności.`)},20000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&Vault.key&&Vault.dirty)flushVault()});
+addEventListener("pagehide",()=>{if(Vault.key&&Vault.dirty)flushVault()});
+addEventListener("beforeunload",e=>{if(Vault.key&&(Vault.dirty||Vault.saving||(Vault.mode==="manual"&&!Vault.downloaded))){flushVault();e.preventDefault();e.returnValue=""}});
+
+// ekran sejfu
+const vs={step:null,dir:null,fileText:null,fileName:null};
+function vaultCard(inner){return `<div class="vcard"><h2 style="margin:0 0 4px;font-size:20px">🔐 Sejf AuDitor-AD</h2>
+  <p class="meta" style="margin-top:0">Dane oceny są przechowywane w pliku zaszyfrowanym hasłem (AES-256-GCM, PBKDF2-SHA256 ${KDF_ITER.toLocaleString("pl-PL")} iteracji). Hasło nie jest nigdzie zapisywane – bez niego danych nie da się odzyskać.</p>
+  ${vs.msg?`<div class="banner">${esc(vs.msg)}</div>`:""}${vs.err?`<div class="banner" style="background:var(--bad-bg);border-color:var(--bad)">${esc(vs.err)}</div>`:""}${inner}</div>`}
+const pwField=(id,ph)=>`<input type="password" id="${id}" placeholder="${ph}" autocomplete="off" style="margin-top:8px">`;
+async function showVault(msg){const el=document.getElementById("vaultScreen");el.hidden=false;vs.msg=msg||vs.msg;vs.err=null;
+  if(!vs.step){if(FS_OK){let d=null;try{d=await IDB.get("dir")}catch(e){}if(d){vs.dir=d;vs.step="openfs"}else vs.step="pick"}
+    else{let c=null;try{c=localStorage.getItem(K.vaultCache)}catch(e){}if(c){vs.fileText=c;vs.fileName="kopia w przeglądarce";vs.step="openfile"}else vs.step="pickfile"}}
+  drawVault()}
+function drawVault(){const el=document.getElementById("vaultScreen");let h="";
+  if(vs.step==="pick")h=`<p>Wybierz folder na sejf (np. na dysku służbowym z BitLockerem). Jeśli w folderze jest już <code>${VAULT_FILE}</code>, zostanie otwarty; jeśli nie – utworzysz nowy sejf. Kopie rotacyjne trafią do podfolderu <code>${BACKUP_DIR}/</code>.</p>
+      <button class="primary" id="vPick">Wybierz folder sejfu…</button>`;
+  else if(vs.step==="openfs")h=`<p>Folder: <b>${esc(vs.dir.name)}</b> · plik <code>${esc(vs.found||VAULT_FILE)}</code>${vs.found?"":` <span class="meta">(lub <code>${LEGACY_VAULT_FILE}</code> z poprzedniej wersji)</span>`}</p>${pwField("vPw","Hasło do sejfu")}
+      <div class="row" style="margin-top:10px"><button class="primary" id="vOpen">Odblokuj</button><button id="vOther">Inny folder…</button></div>`;
+  else if(vs.step==="create")h=`<p>${FS_OK?`W folderze <b>${esc(vs.dir?vs.dir.name:"")}</b> nie ma sejfu – utwórz nowy.`:"Nowy sejf"}</p>
+      ${pwField("vPw","Nowe hasło (min. "+PW_MIN+" znaków)")}${pwField("vPw2","Powtórz hasło")}
+      <p class="meta">Użyj długiego hasła (np. 4–5 losowych słów) i zapisz je w menedżerze haseł.</p>
+      <div class="row"><button class="primary" id="vCreate">Utwórz sejf</button>${FS_OK?'<button id="vOther">Inny folder…</button>':'<button id="vBack">Wstecz</button>'}</div>`;
+  else if(vs.step==="pickfile")h=`<div class="banner">Ta przeglądarka nie obsługuje automatycznego zapisu do pliku (użyj Edge lub Chrome). Tryb ręczny: zaszyfrowana kopia jest trzymana w przeglądarce, a plik sejfu pobierasz przyciskiem „Pobierz sejf”.</div>
+      <div class="row"><button class="primary" id="vFile">Otwórz plik sejfu…</button><button id="vNew">Utwórz nowy sejf</button></div><input type="file" id="vFileIn" accept=".json" hidden>`;
+  else if(vs.step==="openfile")h=`<p>Sejf: <b>${esc(vs.fileName)}</b></p>${pwField("vPw","Hasło do sejfu")}
+      <div class="row" style="margin-top:10px"><button class="primary" id="vOpenFile">Odblokuj</button><button id="vBack">Inny plik…</button></div>`;
+  el.innerHTML=vaultCard(h);
+  const $=id=>document.getElementById(id);const pw=$("vPw");if(pw){pw.focus();pw.onkeydown=e=>{if(e.key==="Enter")(($("vOpen")||$("vOpenFile")||$("vCreate"))).click()}}
+  const pw2=$("vPw2");if(pw2)pw2.onkeydown=e=>{if(e.key==="Enter")$("vCreate").click()};
+  const busy=(b,t)=>{b.disabled=true;b.textContent=t};
+  const fail=e=>{vs.err=e.message||String(e);drawVault()};
+  if($("vPick"))$("vPick").onclick=async()=>{try{const d=await window.showDirectoryPicker({id:"adsec",mode:"readwrite"});vs.dir=d;
+      const t=await readVaultIn(d);vs.found=t?t.name:null;vs.step=t?"openfs":"create";vs.err=null;drawVault()}catch(e){if(e.name!=="AbortError")fail(e)}};
+  if($("vOther"))$("vOther").onclick=()=>{vs.step="pick";vs.err=null;drawVault()};
+  if($("vOpen"))$("vOpen").onclick=async()=>{const b=$("vOpen");const p=pw.value;if(!p)return;busy(b,"Odszyfrowywanie…");
+    try{if(!await ensurePerm(vs.dir,true))throw new Error("Brak zgody na dostęp do folderu");const t=await readVaultIn(vs.dir);
+      if(!t){vs.step="create";drawVault();return}const r=await decryptVault(t.text,p);vs.msg=null;await unlocked(r,"fs",vs.dir);
+      if(t.legacy&&!Vault.err)toast(`Sejf przeniesiony do ${VAULT_FILE}. Stary plik ${LEGACY_VAULT_FILE} został bez zmian – możesz go usunąć.`)}catch(e){fail(e)}};
+  if($("vCreate"))$("vCreate").onclick=async()=>{const a=pw.value,b2=pw2.value;
+    if(a.length<PW_MIN)return fail(new Error(`Hasło musi mieć co najmniej ${PW_MIN} znaków`));if(a!==b2)return fail(new Error("Hasła nie są identyczne"));
+    const b=$("vCreate");busy(b,"Tworzenie…");
+    try{const salt=crypto.getRandomValues(new Uint8Array(16));const key=await deriveKey(a,salt,KDF_ITER);
+      if(FS_OK){if(!await ensurePerm(vs.dir,true))throw new Error("Brak zgody na zapis w folderze");
+        if(await readVaultIn(vs.dir))throw new Error("W folderze jest już sejf – otwórz go zamiast tworzyć nowy");
+        Vault.key=key;Vault.salt=salt;Vault.iter=KDF_ITER;
+        await writeFileIn(vs.dir,VAULT_FILE,await encryptPayload({app:APP.name,appVersion:APP.version,version:3,saved:now(),domains:[]},key,salt,KDF_ITER));
+        await unlocked({data:{domains:[]},key,salt,iter:KDF_ITER},"fs",vs.dir)}
+      else{await unlocked({data:{domains:[]},key,salt,iter:KDF_ITER},"manual");await flushVault()}
+      vs.msg=null;toast("Utworzono sejf")}catch(e){Vault.key=null;fail(e)}};
+  if($("vFile"))$("vFile").onclick=()=>$("vFileIn").click();
+  if($("vFileIn"))$("vFileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+    rd.onload=()=>{if(!isVaultText(rd.result))return fail(new Error("To nie jest plik sejfu"));vs.fileText=rd.result;vs.fileName=f.name;vs.step="openfile";vs.err=null;drawVault()};rd.readAsText(f)};
+  if($("vNew"))$("vNew").onclick=()=>{vs.step="create";vs.err=null;drawVault()};
+  if($("vBack"))$("vBack").onclick=()=>{vs.step="pickfile";vs.err=null;drawVault()};
+  if($("vOpenFile"))$("vOpenFile").onclick=async()=>{const b=$("vOpenFile");const p=pw.value;if(!p)return;busy(b,"Odszyfrowywanie…");
+    try{let r=await decryptVault(vs.fileText,p);let c=null;try{c=localStorage.getItem(K.vaultCache)}catch(e){}
+      if(c&&c!==vs.fileText){try{const rc=await decryptVault(c,p);const fs=r.data.saved||"",cs=rc.data.saved||"";
+        if(cs>fs&&confirm(`Kopia w przeglądarce jest nowsza (${fmt(cs)}) niż otwierany plik (${fmt(fs)||"brak daty"}).\nUżyć nowszej kopii z przeglądarki?`))r=rc}catch(e){}}
+      vs.msg=null;await unlocked(r,"manual");await flushVault()}catch(e){fail(e)}};
+}
+
+// hasło: okno dialogowe
+function askPassword(title,fields){return new Promise(res=>{const d=document.getElementById("dlgPw");
+  document.getElementById("pwTitle").textContent=title;
+  document.getElementById("pwFields").innerHTML=fields.map((f,i)=>`<div style="margin-top:8px"><label>${esc(f)}</label><input type="password" data-pw="${i}" autocomplete="off"></div>`).join("");
+  d.showModal();const inputs=[...d.querySelectorAll("[data-pw]")];inputs[0].focus();
+  const done=v=>{d.close();res(v)};
+  document.getElementById("pwOk").onclick=()=>done(inputs.map(i=>i.value));
+  document.getElementById("pwCancel").onclick=()=>done(null);
+  inputs.forEach(i=>i.onkeydown=e=>{if(e.key==="Enter")document.getElementById("pwOk").click()});
+  d.oncancel=()=>res(null)})}
+async function changePassword(){if(!Vault.key)return;const v=await askPassword("Zmiana hasła sejfu",["Obecne hasło","Nowe hasło (min. "+PW_MIN+" znaków)","Powtórz nowe hasło"]);if(!v)return;
+  try{await flushVault();await decryptVault(Vault.lastText,v[0])}catch(e){return alert("Obecne hasło jest nieprawidłowe")}
+  if(v[1].length<PW_MIN)return alert(`Nowe hasło musi mieć co najmniej ${PW_MIN} znaków`);if(v[1]!==v[2])return alert("Hasła nie są identyczne");
+  const salt=crypto.getRandomValues(new Uint8Array(16));Vault.key=await deriveKey(v[1],salt,KDF_ITER);Vault.salt=salt;Vault.iter=KDF_ITER;Vault.dirty=true;await flushVault();
+  if(Vault.mode==="fs")await maybeBackup(Vault.lastText,true).catch(()=>{});
+  toast("Hasło zmienione. Starsze kopie w backups/ nadal otwiera poprzednie hasło.")}
+function downloadVault(){if(!Vault.lastText)return;const d=new Date();download(`auditor-ad_${localInput(d).replace(/[:T]/g,"-")}.vault.json`,Vault.lastText,"application/json");Vault.downloaded=d;updVaultStatus()}
+
+applyTheme();loadCat();renderSidebar();updVaultStatus();showVault();
+</script>
+</body>
+</html>
